@@ -19,6 +19,7 @@ import {
   Empty,
   ErrorNote,
   Field,
+  Loading,
   OkNote,
   Panel,
   Select,
@@ -81,6 +82,8 @@ export function StandardScreen({ focusJobId = '' }: { focusJobId?: string }) {
   });
   const [edits, setEdits] = useState<Record<string, EditState>>({});
   const [stage, setStage] = useState<1 | 2 | 3 | 4>(1);
+  /** 首屏先把标准读完再画步骤，否则会先闪一帧「0 轮 / 0/0」再跳到定稿页。 */
+  const [booting, setBooting] = useState(true);
   const [openDim, setOpenDim] = useState<string | null>(null);
   const stageFor = useRef('');
 
@@ -186,15 +189,20 @@ export function StandardScreen({ focusJobId = '' }: { focusJobId?: string }) {
     if (!first) return;
     autoPicked.current = true;
     setJobId(first.id);
-    void resumeStandard(first.id);
+    void resumeStandard(first.id).finally(() => setBooting(false));
   }, [jobs.data, jobId]);
+
+  /** 没有岗位时不存在“载入标准”这回事，直接落到选择页。 */
+  useEffect(() => {
+    if (!jobs.loading && (jobs.data?.length ?? 0) === 0) setBooting(false);
+  }, [jobs.loading, jobs.data]);
 
   /** 从「今天」带着一个岗位进来时，直接载入这个岗位的标准，不让人再选一次。 */
   const focused = useRef(false);
   useEffect(() => {
     if (focused.current || !focusJobId) return;
     focused.current = true;
-    void resumeStandard(focusJobId);
+    void resumeStandard(focusJobId).finally(() => setBooting(false));
   }, [focusJobId]);
 
   /** 载入另一份标准时，停在这份标准最该继续的一步；同一份标准刷新不抢当前阶段。 */
@@ -235,6 +243,10 @@ export function StandardScreen({ focusJobId = '' }: { focusJobId?: string }) {
       },
       '维度已保存。',
     );
+
+  if (booting) {
+    return <Loading label="正在载入这个岗位的考察标准" rows={3} />;
+  }
 
   return (
     <div className="grid gap-4">
