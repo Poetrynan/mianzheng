@@ -1,12 +1,19 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { ArrowUpRight, Eye, EyeOff, ShieldCheck, Sparkles, Stamp } from 'lucide-react';
+import { ArrowUpRight, ChevronDown, Eye, EyeOff, HelpCircle, ShieldCheck, Sparkles, Stamp } from 'lucide-react';
 import { Brand, ThemeToggle } from '../chrome';
 import { messageOf, useSession } from '../session';
-import { Btn, ErrorNote, Field, Segmented } from '../ui';
+import { Btn, ErrorNote, Field, Segmented, cx } from '../ui';
 
 type Mode = 'login' | 'register';
 
 type FieldErrors = Partial<Record<'orgName' | 'name' | 'email' | 'password' | 'confirm', string>>;
+
+const DEMO_ACCOUNTS = [
+  { label: '招聘负责人（HR）', email: 'hr@demo.mianzheng.local' },
+  { label: '面试官', email: 'wang@demo.mianzheng.local' },
+  { label: '用人经理', email: 'zhao@demo.mianzheng.local' },
+];
+const DEMO_PASSWORD = 'mianzheng2026';
 
 export function AuthScreen() {
   const { login, register, bootError, retryBoot } = useSession();
@@ -17,6 +24,7 @@ export function AuthScreen() {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showDemo, setShowDemo] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -290,6 +298,49 @@ export function AuthScreen() {
                   {mode === 'login' ? '登录' : '创建工作区'}
                 </Btn>
               </form>
+
+              {mode === 'login' ? (
+                <div className="mt-4 rounded-xl border border-line-soft bg-raise-soft">
+                  <button
+                    type="button"
+                    onClick={() => setShowDemo((prev) => !prev)}
+                    aria-expanded={showDemo}
+                    className="press flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left"
+                  >
+                    <span className="inline-flex items-center gap-1.5 text-[12px] text-mist">
+                      <HelpCircle className="h-3.5 w-3.5" aria-hidden />
+                      演示账号（面试官用）
+                    </span>
+                    <ChevronDown
+                      className={cx('h-3.5 w-3.5 text-mist-dim transition-transform', showDemo && 'rotate-180')}
+                      aria-hidden
+                    />
+                  </button>
+                  {showDemo ? (
+                    <ul className="border-t border-line-soft p-2">
+                      {DEMO_ACCOUNTS.map((account) => (
+                        <li key={account.email}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              edit('email', account.email, setEmail);
+                              setPassword(DEMO_PASSWORD);
+                              setError(null);
+                            }}
+                            className="press flex w-full flex-wrap items-baseline justify-between gap-2 rounded-lg px-2 py-2 text-left transition hover:bg-raise"
+                          >
+                            <span className="text-[12px] text-paper">{account.label}</span>
+                            <span className="text-[11px] text-mist-dim">{account.email}</span>
+                          </button>
+                        </li>
+                      ))}
+                      <li className="px-2 pt-1 text-[11px] leading-relaxed text-mist-dim">
+                        密码都是 {DEMO_PASSWORD}；点一行自动填好。演示数据是虚构的。
+                      </li>
+                    </ul>
+                  ) : null}
+                </div>
+              ) : null}
 
               <div className="mt-4">
                 {mode === 'login' ? (
