@@ -1,0 +1,19 @@
+node_modules/
+dist/
+coverage/
+.tsbuild/
+*.tsbuildinfo
+.env
+.env.local
+data/*.db
+data/*.db-journal
+data/audio/
+data/e2e-audio/
+tmp-*.cjs
+.quarantine/
+.install-*.log
+.install-result.json
+
+# 本地素材与模型，不随仓库提交
+Ollama/
+vibe_images/

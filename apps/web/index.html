@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#eef1f5" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="description" content="面证 · 面试官副驾：面试前定下考察标准，面试中安静记录原话，面试后整理出一份有据可查的面评。" />
+    <title>面证 · 面试官副驾</title>
+    <script>
+      // Before the first paint, so the saved theme never flashes and the scrollbar never re-flows.
+      (function () {
+        var stored = null;
+        try {
+          stored = localStorage.getItem('mianzheng.theme.v1') || localStorage.getItem('mianyan.theme.v1');
+        } catch (err) {}
+        // White paper is the product's default; dark is an explicit choice, not an OS surprise.
+        var theme = stored === 'dark' ? 'dark' : 'light';
+        document.documentElement.dataset.theme = theme;
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', theme === 'light' ? '#eef1f5' : '#0c1116');
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

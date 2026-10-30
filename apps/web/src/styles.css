@@ -1,0 +1,478 @@
+@import 'tailwindcss';
+
+/*
+ * One palette per theme, expressed only through these tokens. Utilities and screens reference the
+ * names, so switching `data-theme` on <html> repaints the whole app without touching a component.
+ */
+@theme {
+  /*
+   * Graphite on glass. Everything the machine produces is colourless; the only warm hue in the
+   * system belongs to the person in the room (--color-human). No green anywhere.
+   */
+  --color-ink-1000: #0a0e13;
+  --color-ink-950: #0c1116;
+  --color-ink-900: #111821;
+  --color-ink-850: #161e27;
+  --color-ink-800: #1b242e;
+  --color-line: #28323e;
+  --color-line-soft: #1d2731;
+  --color-line-hi: #3a4756;
+  /* 1.4.11: a control's own boundary must reach 3:1 against what surrounds it; the hairlines above are decorative dividers. */
+  --color-line-field: #6f7c8b;
+  --color-mist: #a9b4c2;
+  --color-mist-dim: #828e9d;
+  --color-paper: #eef2f7;
+  --color-brand: #e8edf3;
+  --color-brand-deep: #c2cbd6;
+  --color-brand-hi: #ffffff;
+  --color-on-brand: #0b1016;
+  --color-human: #e7b184;
+  --color-ok: #9dc2e8;
+  --color-warn: #d9b871;
+  --color-bad: #ef9c94;
+  /* Text that sits inside a 12% tint of its own colour. Dark mode needs no change; light mode
+   * shifts these down the same hue, because a mid-tone colour on its own pale tint is ~3:1. */
+  --color-tint-brand: #e8edf3;
+  --color-tint-human: #eec09a;
+  --color-tint-ok: #b3d0ee;
+  --color-tint-warn: #e5c98f;
+  --color-tint-bad: #f3b0a9;
+  --color-raise-soft: rgba(255, 255, 255, 0.04);
+  --color-raise: rgba(255, 255, 255, 0.07);
+  --color-raise-hi: rgba(255, 255, 255, 0.11);
+  --color-scrim: rgba(5, 9, 14, 0.66);
+
+  --font-sans: 'Inter', 'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Songti SC', 'Noto Serif SC', 'Source Han Serif SC', SimSun, serif;
+  --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  :root {
+    --hair: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    --hair-accent: inset 0 -1px 0 rgba(0, 0, 0, 0.18);
+    --btn-accent-shadow: 0 10px 24px -16px rgba(0, 0, 0, 0.9);
+    --glass-bg: rgba(21, 28, 37, 0.55);
+    --glass-line: rgba(255, 255, 255, 0.09);
+    --glass-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    --glass-shadow:
+      0 22px 48px -30px rgba(0, 0, 0, 0.85),
+      0 1px 2px rgba(0, 0, 0, 0.35);
+    --glass-blur: blur(18px) saturate(145%);
+    --glass-solid: #151c25;
+    --glass-rail: rgba(12, 17, 22, 0.62);
+    --field-bg: #0d131a;
+    --field-bg-focus: #101721;
+    --field-placeholder: rgba(178, 188, 200, 0.72);
+    --scroll-thumb: #2c3743;
+    --scroll-thumb-hover: #3d4a59;
+    --wash-a: rgba(96, 132, 180, 0.16);
+    --wash-b: rgba(231, 177, 132, 0.09);
+    --wash-c: rgba(120, 150, 190, 0.08);
+    /* A panel is a card on the page, not a pane of glass: one hairline, one tight shadow. */
+    --panel-bg: #151c25;
+    --panel-line: rgba(255, 255, 255, 0.09);
+    --panel-shadow: 0 1px 2px rgba(0, 0, 0, 0.34);
+    --inset-bg: rgba(255, 255, 255, 0.04);
+  }
+
+  /*
+   * Light is the default working surface: plain white paper under a thin wash of cool light, so a
+   * page of interview notes stays readable for an hour without glare. Anything that floats above
+   * the page is frosted glass rather than a solid card.
+   */
+  html[data-theme='light'] {
+    color-scheme: light;
+
+    --color-ink-1000: #e3e8ef;
+    --color-ink-950: #eef1f5;
+    --color-ink-900: #ffffff;
+    --color-ink-850: #f6f8fb;
+    --color-ink-800: #eaeef3;
+    --color-line: #d9dfe7;
+    --color-line-soft: #e7ebf1;
+    --color-line-hi: #c3cbd6;
+    --color-line-field: #7b8698;
+    --color-mist: #4b5563;
+    --color-mist-dim: #5f6a7a;
+    --color-paper: #0e1520;
+    --color-brand: #121a25;
+    --color-brand-deep: #000000;
+    --color-brand-hi: #2b3644;
+    --color-on-brand: #ffffff;
+    --color-human: #8f4c12;
+    --color-ok: #27527a;
+    --color-warn: #6f520b;
+    --color-bad: #962d23;
+    --color-tint-brand: #121a25;
+    --color-tint-human: #82450f;
+    --color-tint-ok: #1f4a70;
+    --color-tint-warn: #5f460a;
+    --color-tint-bad: #8a2a21;
+    --color-raise-soft: rgba(15, 23, 42, 0.035);
+    --color-raise: rgba(15, 23, 42, 0.06);
+    --color-raise-hi: rgba(15, 23, 42, 0.10);
+    --color-scrim: rgba(15, 23, 42, 0.38);
+
+    --hair: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    --hair-accent: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    --btn-accent-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.16),
+      0 6px 16px -12px rgba(15, 23, 42, 0.55);
+    --glass-bg: rgba(255, 255, 255, 0.72);
+    --glass-line: rgba(15, 23, 42, 0.12);
+    --glass-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    --glass-shadow:
+      0 1px 2px rgba(15, 23, 42, 0.06),
+      0 30px 60px -34px rgba(30, 45, 70, 0.36);
+    --glass-blur: blur(18px) saturate(160%);
+    --glass-solid: #ffffff;
+    --glass-rail: rgba(255, 255, 255, 0.55);
+    --field-bg: #ffffff;
+    --field-bg-focus: #ffffff;
+    --field-placeholder: rgba(75, 85, 99, 0.82);
+    --scroll-thumb: #c3cbd6;
+    --scroll-thumb-hover: #a7b1c0;
+    --wash-a: rgba(255, 255, 255, 0.95);
+    --wash-b: rgba(120, 158, 214, 0.14);
+    --wash-c: rgba(226, 176, 116, 0.12);
+    --panel-bg: #ffffff;
+    --panel-line: rgba(15, 23, 42, 0.11);
+    --panel-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+    --inset-bg: rgba(15, 23, 42, 0.035);
+  }
+
+  html {
+    color-scheme: dark;
+    /* The scrollbar used to appear and disappear as content grew, which nudged every column sideways. */
+    scrollbar-gutter: stable;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-ink-950);
+    /* Three slow washes of light give the frosted panels something to refract. */
+    background-image:
+      radial-gradient(1100px 620px at 8% -10%, var(--wash-a), transparent 60%),
+      radial-gradient(900px 520px at 92% 4%, var(--wash-b), transparent 62%),
+      radial-gradient(1200px 800px at 50% 112%, var(--wash-c), transparent 65%);
+    background-attachment: fixed;
+    color: var(--color-paper);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.55;
+    font-variant-numeric: tabular-nums;
+    caret-color: var(--color-brand);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Chinese/Latin breathing room without touching the copy itself. */
+  :lang(zh) {
+    word-spacing: 0.02em;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    letter-spacing: -0.012em;
+    font-weight: 600;
+    text-wrap: balance;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+    letter-spacing: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--color-brand) 70%, transparent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scroll-thumb);
+    border: 2px solid transparent;
+    background-clip: content-box;
+    border-radius: 8px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scroll-thumb-hover);
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-brand) 30%, transparent);
+  }
+}
+
+@layer components {
+  /*
+   * Two surfaces, two jobs. A panel is a solid card sitting on the page: a hairline and a tight
+   * shadow, nothing that refracts. Blur on every card flattens the hierarchy — every block ends up
+   * looking like the same frosted pane — and it costs a repaint on every scroll. Frost is reserved
+   * for the rail and the top bar, which really do float over content that moves beneath them.
+   */
+  .glass {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-line);
+    box-shadow: var(--glass-sheen), var(--glass-shadow);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+
+  .surface-2 {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-line);
+    box-shadow: var(--panel-shadow);
+    border-radius: 14px;
+  }
+
+  /*
+   * A block inside a panel: the same surface, one step down. It carries no border and no shadow of
+   * its own — a second edge inside a card is what makes a screen look like boxes inside boxes.
+   */
+  .inset {
+    background: var(--inset-bg);
+    border-radius: 12px;
+  }
+
+  /* The two halves of a check: the draft the machine wrote, and the judgement the human makes. */
+  .inset-ai {
+    background: color-mix(in srgb, var(--color-brand) 5%, var(--inset-bg));
+    border-radius: 12px;
+  }
+
+  .inset-human {
+    background: color-mix(in srgb, var(--color-human) 8%, var(--inset-bg));
+    border-radius: 12px;
+  }
+
+  .inset-ok {
+    background: color-mix(in srgb, var(--color-ok) 9%, var(--inset-bg));
+    border-radius: 12px;
+  }
+
+  /* A callout inside a panel warns by its surface, not by a second border. */
+  .callout {
+    border-radius: 12px;
+  }
+
+  .callout-warn {
+    background: color-mix(in srgb, var(--color-warn) 9%, var(--panel-bg));
+  }
+
+  .callout-bad {
+    background: color-mix(in srgb, var(--color-bad) 9%, var(--panel-bg));
+  }
+
+  .callout-ok {
+    background: color-mix(in srgb, var(--color-ok) 9%, var(--panel-bg));
+  }
+
+  /* A scroll region that stops in the middle of a line reads as a broken render; a soft edge says there is more below. */
+  .fade-below {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 28px;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent, var(--panel-bg));
+  }
+
+  /* A panel that has to read as a warning carries the tone in its own surface, not in a stripe. */
+  .surface-2.tone-danger {
+    background: color-mix(in srgb, var(--color-bad) 7%, var(--panel-bg));
+    border-color: color-mix(in srgb, var(--color-bad) 32%, var(--panel-line));
+  }
+
+  .surface-2.tone-warn {
+    background: color-mix(in srgb, var(--color-warn) 7%, var(--panel-bg));
+    border-color: color-mix(in srgb, var(--color-warn) 32%, var(--panel-line));
+  }
+
+  .glass-rail {
+    background: var(--glass-rail);
+    border-right: 1px solid var(--glass-line);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+
+  .glass-bar {
+    background: var(--glass-bg);
+    border-bottom: 1px solid var(--glass-line);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+
+  /* Without a blur filter, translucency turns into smudge. Fall back to a solid pane. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass,
+    .glass-rail,
+    .glass-bar {
+      background: var(--glass-solid);
+    }
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .glass,
+    .glass-rail,
+    .glass-bar {
+      background: var(--glass-solid);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  .field-base {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--color-line-field);
+    background: var(--field-bg);
+    padding: 0.5rem 0.7rem;
+    color: var(--color-paper);
+    outline: none;
+    transition:
+      border-color 160ms var(--ease-out-quint),
+      box-shadow 160ms var(--ease-out-quint),
+      background-color 160ms var(--ease-out-quint);
+  }
+  .field-base::placeholder {
+    color: var(--field-placeholder);
+  }
+  .field-base:hover:not(:disabled) {
+    border-color: var(--color-line-hi);
+  }
+  .field-base:focus-visible {
+    outline: none;
+    border-color: color-mix(in srgb, var(--color-brand) 65%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand) 15%, transparent);
+    background: var(--field-bg-focus);
+  }
+
+  .press {
+    transition:
+      transform 140ms var(--ease-out-quint),
+      background-color 160ms var(--ease-out-quint),
+      border-color 160ms var(--ease-out-quint),
+      box-shadow 160ms var(--ease-out-quint),
+      color 160ms var(--ease-out-quint);
+  }
+  .press:active:not(:disabled) {
+    transform: scale(0.985);
+  }
+
+  /* A slot whose width is the widest of its candidates: swapping one control for another cannot move a neighbour. */
+  .lock-slot {
+    display: grid;
+    justify-items: start;
+  }
+  .lock-slot > * {
+    grid-area: 1 / 1;
+  }
+
+  .num {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  .code-chip {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.01em;
+  }
+
+  /* Audio bar wave animation */
+  @keyframes audioWave {
+    0%, 100% {
+      height: 4px;
+    }
+    50% {
+      height: 18px;
+    }
+  }
+
+  .wave-bar {
+    animation: audioWave 1.2s ease-in-out infinite;
+  }
+  .wave-bar-1 { animation-delay: 0.1s; }
+  .wave-bar-2 { animation-delay: 0.3s; }
+  .wave-bar-3 { animation-delay: 0.5s; }
+  .wave-bar-4 { animation-delay: 0.2s; }
+  .wave-bar-5 { animation-delay: 0.4s; }
+
+  /* Waiting for data is not the same as having no data: a loading state shows its shape. */
+  @keyframes skeletonSweep {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  .skeleton {
+    background-image: linear-gradient(
+      90deg,
+      var(--color-raise-soft) 0%,
+      var(--color-raise) 45%,
+      var(--color-raise-soft) 90%
+    );
+    background-size: 200% 100%;
+    animation: skeletonSweep 1.5s var(--ease-out-quint) infinite;
+  }
+}
+
+/* 标是两张位图：浅色页面用深底板那张，深色页面用浅底板那张。 */
+.mark-for-dark {
+  display: none;
+}
+html[data-theme='dark'] .mark-for-light {
+  display: none;
+}
+html[data-theme='dark'] .mark-for-dark {
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* An infinite bar at a frozen duration flickers; give it a still shape instead. */
+  .wave-bar {
+    animation: none !important;
+    height: 4px !important;
+  }
+
+  .skeleton {
+    animation: none !important;
+    background-position: 0 0 !important;
+  }
+}

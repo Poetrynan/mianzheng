@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "outDir": "../../.tsbuild/core",
+    "tsBuildInfoFile": "../../.tsbuild/core.tsbuildinfo",
+    "rootDir": "src"
+  },
+  "include": ["src"]
+}
