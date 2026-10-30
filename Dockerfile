@@ -13,6 +13,9 @@ RUN npm ci
 
 COPY . .
 
+# 免费档没有挂载盘，/data 就在容器里；先建好目录，seed 才能写库。
+RUN mkdir -p /data/audio
+
 ENV MIANYAN_DEMO_MODE=1 \
     MIANYAN_HOST=0.0.0.0 \
     MIANYAN_PORT=10000 \

@@ -2,13 +2,11 @@ services:
   - type: web
     name: mianzheng-api
     runtime: docker
-    plan: starter
+    # 免费档：不用绑卡，但容器重启后 /data 会重置（第一次启动会自动重新 seed）。
+    # 想持久保存评审提交的数据，把 plan 改成 starter 并挂 1GB 磁盘，见 README。
+    plan: free
     region: singapore
     dockerfilePath: ./Dockerfile
-    disk:
-      name: mianzheng-data
-      mountPath: /data
-      sizeGB: 1
     envVars:
       - key: MIANYAN_DEMO_MODE
         value: "1"

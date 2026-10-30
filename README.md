@@ -51,18 +51,33 @@ npm run dev
 
 **为什么不全部放 Vercel**：Vercel 的函数是无状态的，只有 `/tmp`，实例之间不共享。这个产品的登录会话和面评都写在 SQLite 里，纯 Vercel 会出现「随机掉登录、数据重置」。所以 Vercel 只放静态页面，再加一个 `/api` 转发函数；真正的进程和数据库在 Render。
 
+### 0. 部署顺序（先 Render，后 Vercel）
+
+1. **Render**：New → Blueprint → 选这个仓库 → 应用 `render.yaml` → Deploy。等镜像构建完，拿到地址（形如 `https://mianzheng-api.onrender.com`）。
+2. **验后端**：浏览器打开 `<后端地址>/auth/me`，返回 401 `auth_required` 就说明服务活着。
+3. **Vercel**：Add New → Project → 导入同一个仓库 → 环境变量加 `API_ORIGIN = <后端地址>` → Deploy。
+4. **验整体**：打开 Vercel 域名，用 `hr@demo.mianzheng.local / mianzheng2026` 登录，能进「候选人结果」就通了。
+
 ### 1. 后端（Render）
 
-1. Render → New → **Blueprint** → 选择这个仓库，它会读根目录的 `render.yaml`。
-2. 需要选 **Starter** 计划：持久盘只在 Starter 及以上可用（约 $7/月）；**免费档没有磁盘，实例重启或休眠后数据库会重置**。
-3. 首次启动会自动跑 seed（演示模式，无需任何密钥）；服务地址形如 `https://mianzheng-api.onrender.com`。
-4. 健康检查：打开 `<后端地址>/auth/me`，返回 401 `auth_required` 即为正常。
+- 默认走**免费档**：不用绑卡，适合今天交作业；代价是容器休眠/重启后 `/data` 会重置，第一次启动会自动重新 seed，**评审提交的数据不会跨重启保留**。
+- 需要持久化就改成 `plan: starter`（约 $7/月），并在 `render.yaml` 加回磁盘：
+
+```yaml
+    plan: starter
+    disk:
+      name: mianzheng-data
+      mountPath: /data
+      sizeGB: 1
+```
+
+- 免费档冷启动要约 50 秒；第一次打开慢是正常的。Vercel 转发函数的超时已设成 60 秒。
 
 ### 2. 前端（Vercel）
 
-1. Vercel → Add New → Project → 导入同一个仓库；框架选 **Other**（构建命令和输出目录已写在 `vercel.json`）。
-2. 环境变量加一条：`API_ORIGIN = https://mianzheng-api.onrender.com`（不要带 `/api`）。
-3. 部署完成后访问 Vercel 域名：页面是静态的，`/api/*` 由 `api/[...path].js` 转发到 Render，浏览器看到的始终是同一个域名，登录 Cookie 正常。
+1. 框架选 **Other**（构建命令和输出目录已写在 `vercel.json`，输出 `apps/web/dist`）。
+2. 环境变量：`API_ORIGIN = https://<后端地址>`（不要带 `/api`）。
+3. 部署后访问 Vercel 域名：页面是静态的，`/api/*` 由 `api/[...path].js` 转发到 Render，浏览器看到的始终是同一个域名，登录 Cookie 正常。
 
 ### 3. 本地验证转发（可选）
 
