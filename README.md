@@ -77,7 +77,7 @@ npm run dev
 
 1. 框架选 **Other**（构建命令和输出目录已写在 `vercel.json`，输出 `apps/web/dist`）。
 2. 环境变量：`API_ORIGIN = https://<后端地址>`（不要带 `/api`）。
-3. 部署后访问 Vercel 域名：页面是静态的，`/api/*` 由 `api/[...path].js` 转发到 Render，浏览器看到的始终是同一个域名，登录 Cookie 正常。
+3. 部署后访问 Vercel 域名：页面是静态的，`/api/*` 由 `vercel.json` 重写到 `api/proxy.js`，再转发到 Render；浏览器看到的始终是同一个域名，登录 Cookie 正常。
 
 ### 3. 本地验证转发（可选）
 
