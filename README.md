@@ -47,6 +47,32 @@ npm run dev
 
 想看真实模型效果，复制 `.env.example` 为 `.env`，填 `MIANYAN_LLM_API_KEY`（任何 OpenAI 兼容服务，默认 LongCat）和转写配置，去掉 `MIANYAN_DEMO_MODE` 即可。`.env` 不会随包提交。
 
+## 部署（前端 Vercel + 后端 Render）
+
+**为什么不全部放 Vercel**：Vercel 的函数是无状态的，只有 `/tmp`，实例之间不共享。这个产品的登录会话和面评都写在 SQLite 里，纯 Vercel 会出现「随机掉登录、数据重置」。所以 Vercel 只放静态页面，再加一个 `/api` 转发函数；真正的进程和数据库在 Render。
+
+### 1. 后端（Render）
+
+1. Render → New → **Blueprint** → 选择这个仓库，它会读根目录的 `render.yaml`。
+2. 需要选 **Starter** 计划：持久盘只在 Starter 及以上可用（约 $7/月）；**免费档没有磁盘，实例重启或休眠后数据库会重置**。
+3. 首次启动会自动跑 seed（演示模式，无需任何密钥）；服务地址形如 `https://mianzheng-api.onrender.com`。
+4. 健康检查：打开 `<后端地址>/auth/me`，返回 401 `auth_required` 即为正常。
+
+### 2. 前端（Vercel）
+
+1. Vercel → Add New → Project → 导入同一个仓库；框架选 **Other**（构建命令和输出目录已写在 `vercel.json`）。
+2. 环境变量加一条：`API_ORIGIN = https://mianzheng-api.onrender.com`（不要带 `/api`）。
+3. 部署完成后访问 Vercel 域名：页面是静态的，`/api/*` 由 `api/[...path].js` 转发到 Render，浏览器看到的始终是同一个域名，登录 Cookie 正常。
+
+### 3. 本地验证转发（可选）
+
+```bat
+set API_ORIGIN=http://127.0.0.1:8787
+node scripts/serve-proxy.mjs
+```
+
+然后访问 `http://127.0.0.1:8891`，行为和线上一致。
+
 ## 原型是什么、不是什么
 
 **是**：可运行的原型；真实登录与会话（口令散列、服务端会话、失败锁定）；Agent 运行时（目标、循环、工具、暂停恢复、步数预算、重复保护、审计）；证据账本；三道人工闸门（签标准、认证据、提交面评）；交付看板与候选人结果屏。本地验证：117 个测试、8 个测试文件全过，TypeScript 两套 0 错误，生产构建可用。

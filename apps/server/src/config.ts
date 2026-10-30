@@ -125,7 +125,7 @@ export function loadConfig(startDir: string = process.cwd()): ServerConfig {
 
   return {
     host: e.MIANYAN_HOST ?? '127.0.0.1',
-    port: envInt(e.MIANYAN_PORT, 8787),
+    port: envInt(e.MIANYAN_PORT, envInt(e.PORT, 8787)),
     dbPath: resolve(startDir, e.MIANYAN_DB_PATH ?? 'data/mianyan.db'),
     audioDir: resolve(startDir, e.MIANYAN_AUDIO_DIR ?? 'data/audio'),
     retention: {

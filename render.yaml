@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: mianzheng-api
+    runtime: docker
+    plan: starter
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    disk:
+      name: mianzheng-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: MIANYAN_DEMO_MODE
+        value: "1"
