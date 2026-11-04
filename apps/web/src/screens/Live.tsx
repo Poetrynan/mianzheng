@@ -146,7 +146,7 @@ export function LiveScreen({
   const chooseSpeaker = (next: Speaker) => rec.setSpeaker(next);
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+    <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
       {prompt ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim p-4 backdrop-blur-sm">
           <div className="surface-2 w-full max-w-lg p-6 shadow-2xl">

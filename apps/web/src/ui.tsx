@@ -750,7 +750,7 @@ export function StatStrip({
 
 export function Empty({ text, icon: Icon = Inbox }: { text: string; icon?: LucideIcon }) {
   return (
-    <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-line px-4 py-8 text-center">
+    <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-line px-4 py-5 text-center">
       <Icon className="h-5 w-5 text-mist-dim" strokeWidth={1.6} aria-hidden />
       <p className="text-[12px] leading-relaxed text-mist-dim">{text}</p>
     </div>

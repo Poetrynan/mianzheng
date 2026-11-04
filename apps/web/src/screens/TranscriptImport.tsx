@@ -99,7 +99,7 @@ export function TranscriptImport({
       icon={FileInput}
     >
       {!open ? (
-        <InfoNote message={status === 'scheduled' ? '先请候选人完成选择并开始面试，之后就可以导入。' : '这场面试的面评已经提交，不再接收新的转写。'} />
+        <InfoNote message={status === null ? '正在读取面试状态…' : status === 'scheduled' ? '先请候选人完成选择并开始面试，之后就可以导入。' : status === 'eval_submitted' ? '这场面试的面评已经提交，不再接收新的转写。' : '当前状态暂不支持导入，请检查面试状态后重试。'} />
       ) : (
         <>
           <Segmented<TranscriptSource>

@@ -46,7 +46,7 @@ export function TeamScreen() {
   };
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1.42fr_1fr]">
+    <div className="grid items-start gap-4 lg:grid-cols-[1.42fr_1fr]">
       <div className="flex flex-col gap-4">
         <Panel
           title="团队成员"

@@ -84,6 +84,9 @@ export function ResultsScreen({ onOpenDraft }: { onOpenDraft: (interviewId: stri
     return null;
   }, [results.data]);
 
+  if (jobs.loading && !jobs.data) return <Loading label="正在读取岗位" rows={3} />;
+  if (results.loading && !results.data) return <Loading label="正在汇总候选人结果" rows={4} />;
+
   return (
     <div className="grid gap-4">
       <Panel

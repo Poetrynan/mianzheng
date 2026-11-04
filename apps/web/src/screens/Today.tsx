@@ -199,8 +199,8 @@ export function TodayScreen({
   const upcomingMine = mine.filter((it) => it.status === 'scheduled').sort(byScheduled);
 
   return (
-    <div className="grid gap-4">
-      <ErrorNote message={error} />
+    <div className="grid items-start gap-4 xl:grid-cols-2">
+      {error ? <div className="xl:col-span-2"><ErrorNote message={error} /></div> : null}
       <Panel
         title="等你写面评"
         subtitle="面完的记录都在。打开只需要逐条改分、写一句推荐，然后提交。"

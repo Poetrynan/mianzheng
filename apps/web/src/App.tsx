@@ -135,6 +135,8 @@ function readActiveInterview(): string {
 function Workspace() {
   const { status, org, me, interviews, logout } = useSession();
   const [tab, setTab] = useState<Tab>('today');
+  useEffect(() => { setTab('today'); }, [me?.id]);
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }); }, [tab]);
   const [standardJobId, setStandardJobId] = useState('');
   const [interviewId, setInterviewId] = useState<string>(readActiveInterview);
   const orgId = org?.id ?? '';

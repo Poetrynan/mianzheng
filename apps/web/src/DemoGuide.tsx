@@ -42,9 +42,9 @@ export function DemoGuide({
         </span>
         <Badge>{health.data?.llmDriver === 'mock' ? 'AI 使用固定样例输出' : '流程演示'}</Badge>
       </div>
-      <div className="p-4 sm:p-6">
-        <h2 id="demo-guide-title" className="text-[20px] font-semibold text-paper">先看这一轮，再看下一轮怎么接</h2>
-        <p className="mt-2 max-w-[70ch] text-[13px] leading-relaxed text-mist">
+      <div className="p-4 sm:p-5">
+        <h2 id="demo-guide-title" className="text-[18px] font-semibold text-paper">先看这一轮，再看下一轮怎么接</h2>
+        <p className="mt-2 text-[13px] leading-relaxed text-mist">
           看同一位候选人：按什么标准评价、哪些判断有原话、哪些仍需核实。证据不足表示尚未核实，不代表能力不达标。
         </p>
         {first && next ? (
