@@ -42,7 +42,7 @@ function load(cssPath, darkOpener, lightOpener) {
 
 const themes = {
   app: load(path.join(ROOT, 'apps/web/src/styles.css'), '@theme', "html[data-theme='light']"),
-  landing: load(path.join(ROOT, 'apps/web/landing.html'), ':root {', ":root[data-theme='light']"),
+  landing: load(path.join(ROOT, 'apps/web/src/landing.css'), ':root {', ":root[data-theme='light']"),
 };
 
 const PAIRS = [

@@ -10,6 +10,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
+    target: 'es2022',
     // landing.html is the marketing page; it shares no code with the app and must survive `vite build`.
     rollupOptions: {
       input: {
@@ -18,6 +19,7 @@ export default defineConfig({
       },
     },
   },
+  worker: { format: 'es' },
   server: {
     port: 5173,
     proxy: {

@@ -17,3 +17,4 @@ tmp-*.cjs
 # 本地素材与模型，不随仓库提交
 Ollama/
 vibe_images/
+apps/web/public/pdfjs/

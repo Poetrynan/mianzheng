@@ -11,7 +11,7 @@
     "typecheck": "tsc -b tsconfig.json && tsc -p apps/web/tsconfig.json",
     "test": "vitest run",
     "contrast": "node apps/web/scripts/contrast-check.mjs",
-    "build": "vite build apps/web",
+    "build": "node scripts/copy-pdf-assets.mjs && vite build apps/web",
     "preview": "vite preview apps/web --port 4173",
     "dev": "concurrently -k -n server,web -c cyan,magenta \"npm:dev:server\" \"npm:dev:web\"",
     "dev:server": "tsx watch apps/server/src/main.ts",

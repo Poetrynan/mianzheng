@@ -161,9 +161,9 @@ export function PrepScreen({
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1.18fr_1fr]">
+    <div className="grid items-start gap-4 lg:grid-cols-[1.18fr_1fr]">
       {/* Left Column: the run trace + the one-pager it produced */}
-      <div className="grid gap-4">
+      <div className="grid content-start gap-4">
         <Panel
         title="这一页"
         subtitle={data ? `生成于 ${fmtTime(data.generatedAt)}，面试前看这一页就够` : '还没有生成'}
@@ -353,7 +353,7 @@ export function PrepScreen({
       </div>
 
       {/* Right Column: what the agent remembers + the question deck */}
-      <div className="grid gap-4">
+      <div className="grid content-start gap-4">
         <Panel
           title="候选人的证据账本"
           subtitle="这里只记录已经提交过的面评；下一场准备时，助手就是靠它接着问。"

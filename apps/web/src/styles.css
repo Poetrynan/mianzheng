@@ -228,6 +228,11 @@
 }
 
 @layer components {
+  .choice-menu {
+    min-width: var(--radix-select-trigger-width);
+    max-width: calc(100vw - 24px);
+    max-height: min(320px, var(--radix-select-content-available-height));
+  }
   .auth-interview-frame {
     background: var(--color-ink-850);
   }

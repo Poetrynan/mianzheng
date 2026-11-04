@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { Calendar, Check, ChevronDown, FileText, Plus, User } from 'lucide-react';
+import { Calendar, Check, FileText, Plus, User } from 'lucide-react';
+import { ChoiceSelect } from '../ChoiceSelect';
+import { ResumeInput } from '../ResumeInput';
 import { api } from '../api/client';
 import { ROLE_LABEL } from '../ui';
 import { messageOf, useLoader, useSession } from '../session';
@@ -79,6 +81,9 @@ export function SetupScreen({ onPickInterview }: { onPickInterview: (id: string)
   const [intake, setIntake] = useState(EMPTY_INTAKE);
   const [candidateName, setCandidateName] = useState('');
   const [resumeText, setResumeText] = useState('');
+  const [resumeBusy, setResumeBusy] = useState(false);
+  const [resumeReset, setResumeReset] = useState(0);
+  const suggestedName = useRef('');
   const [jobId, setJobId] = useState('');
   const [pickedCandidateId, setPickedCandidateId] = useState('');
   const [pickedInterviewers, setPickedInterviewers] = useState<string[]>([]);
@@ -204,20 +209,14 @@ export function SetupScreen({ onPickInterview }: { onPickInterview: (id: string)
               <>
                 <p className="text-[12px] leading-tight text-mist-dim">当前岗位</p>
                 <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1.5">
-                  <span className="relative flex min-w-0 max-w-[420px] items-center">
-                    <select
-                      aria-label="切换当前岗位"
+                  <span className="flex min-w-0 max-w-[420px] items-center">
+                    <ChoiceSelect
+                      label="切换当前岗位"
                       value={activeJobId}
-                      onChange={(e) => setJobId(e.target.value)}
-                      className="h-8 w-auto max-w-full min-w-0 cursor-pointer appearance-none truncate rounded-md bg-transparent py-0 pl-0 pr-6 text-[18px] font-semibold leading-snug text-paper hover:text-brand-hi"
-                    >
-                      {jobList.map((job) => (
-                        <option key={job.id} value={job.id}>
-                          {job.title}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-1 h-4 w-4 text-mist-dim" strokeWidth={2} aria-hidden />
+                      onChange={setJobId}
+                      headline
+                      options={jobList.map((job) => ({ value: job.id, label: job.title }))}
+                    />
                   </span>
                   {selectedJob.confirmedStandardId ? (
                     <Badge tone="ok">标准已定稿</Badge>
@@ -423,7 +422,7 @@ export function SetupScreen({ onPickInterview }: { onPickInterview: (id: string)
         <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
           <Panel
             title="添加候选人"
-            subtitle="粘贴简历正文，系统会把经历和考察标准放在一起对照。只保存文字，不保存原件。"
+            subtitle="上传 CV 后自动提取正文与姓名，核对后添加。支持 PDF、Word（DOCX）和 TXT，也可粘贴文本。"
             icon={FileText}
           >
             <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
@@ -439,6 +438,7 @@ export function SetupScreen({ onPickInterview }: { onPickInterview: (id: string)
                   onClick={() => {
                     setCandidateName('张伟');
                     setResumeText(SAMPLE_RESUMES.backend);
+                    setResumeReset((n) => n + 1);
                   }}
                 >
                   张伟
@@ -450,44 +450,38 @@ export function SetupScreen({ onPickInterview }: { onPickInterview: (id: string)
                   onClick={() => {
                     setCandidateName('李雪');
                     setResumeText(SAMPLE_RESUMES.frontend);
+                    setResumeReset((n) => n + 1);
                   }}
                 >
                   李雪
                 </button>
               </div>
             </div>
-            <div className="mt-3">
-              <Field
-                label="简历正文"
-                multiline
-                rows={8}
-                value={resumeText}
-                onChange={setResumeText}
-                placeholder="把简历正文粘贴到这里，不用整理格式。"
-                hint={
-                  !jobsReady
-                    ? '正在读取岗位…'
-                    : selectedJob
-                      ? `将添加到「${selectedJob.title}」下。`
-                      : '先新建一个岗位，再添加候选人。'
-                }
-              />
-            </div>
+            <ResumeInput key={resumeReset} value={resumeText} onChange={setResumeText}
+              onBusyChange={setResumeBusy} disabled={pending !== null}
+              onNameSuggested={(name) => {
+                const previous = suggestedName.current;
+                setCandidateName((current) => !current.trim() || current === previous ? name : current);
+                suggestedName.current = name;
+              }} />
+            <p className="mt-3 text-[12px] leading-relaxed text-mist-dim">
+              {!jobsReady ? '正在读取岗位…' : selectedJob ? `将添加到「${selectedJob.title}」下。请核对姓名和正文。` : '先新建一个岗位，再添加候选人。'}
+            </p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <Btn
                 variant="primary"
                 busy={pending === '入库'}
                 busyLabel="添加中…"
-                disabled={pending !== null || !activeJobId || duplicateCandidate || !candidateName.trim() || !resumeText.trim()}
+                disabled={pending !== null || resumeBusy || !activeJobId || duplicateCandidate || !candidateName.trim() || !resumeText.trim()}
                 disabledReason={
-                  !activeJobId
+                  resumeBusy ? '正在读取简历，请稍候。' : !activeJobId
                     ? '先新建一个岗位。'
                     : duplicateCandidate
                       ? '这个岗位下已有同名候选人。'
                       : !candidateName.trim()
                         ? '填写候选人姓名。'
                         : !resumeText.trim()
-                          ? '粘贴简历正文。'
+                          ? '上传 CV 文件，或粘贴简历文字。'
                           : undefined
                 }
                 onClick={() =>
@@ -499,6 +493,8 @@ export function SetupScreen({ onPickInterview }: { onPickInterview: (id: string)
                       wantedCandidate.current = created.id;
                       setCandidateName('');
                       setResumeText('');
+                      setResumeReset((n) => n + 1);
+                      suggestedName.current = '';
                       return created;
                     },
                     '候选人已添加。去「排期」安排这一轮面试。',
@@ -525,7 +521,7 @@ export function SetupScreen({ onPickInterview }: { onPickInterview: (id: string)
               {jobCandidates.length === 0 ? (
                 <Empty
                   icon={User}
-                  text={!jobsReady ? '正在读取岗位…' : activeJobId ? '还没有候选人，粘贴简历后添加。' : '先新建一个岗位。'}
+                  text={!jobsReady ? '正在读取岗位…' : activeJobId ? '还没有候选人，上传 CV 后添加。' : '先新建一个岗位。'}
                 />
               ) : null}
               {jobCandidates.map((c) => {

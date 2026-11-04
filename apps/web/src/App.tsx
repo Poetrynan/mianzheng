@@ -16,6 +16,7 @@ import {
 import { SessionProvider, useDirectory, useSession } from './session';
 import { Brand, ThemeToggle } from './chrome';
 import { DemoGuide } from './DemoGuide';
+import { ChoiceSelect } from './ChoiceSelect';
 import { Btn, InterviewPill, ROLE_LABEL, cx } from './ui';
 import { AuthScreen } from './screens/AuthScreen';
 import { BoardScreen } from './screens/Board';
@@ -317,19 +318,13 @@ function Workspace() {
                 ) : (
                   <label className="flex min-w-0 items-center gap-2">
                     <span className="hidden shrink-0 text-[12px] text-mist-dim xl:inline">当前面试</span>
-                    <select
-                      aria-label="当前面试"
+                    <ChoiceSelect
+                      label="当前面试"
                       value={interviewId}
-                      onChange={(e) => selectInterview(e.target.value)}
-                      className="field-base max-w-[260px] truncate py-1 text-[12px]"
-                    >
-                      <option value="">选择一场面试…</option>
-                      {interviewList.map((x) => (
-                        <option key={x.id} value={x.id}>
-                          {dir.labelOf(x)}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={selectInterview}
+                      className="max-w-[260px]"
+                      options={[{ value: '', label: '选择一场面试…' }, ...interviewList.map((x) => ({ value: x.id, label: dir.labelOf(x) }))]}
+                    />
                   </label>
                 )}
                 {active ? <InterviewPill status={active.status} /> : null}

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
-import type { KeyboardEvent, ReactNode, Ref } from 'react';
+import { Children, isValidElement, type KeyboardEvent, type ReactNode, type Ref } from 'react';
+import { ChoiceSelect, type ChoiceOption } from './ChoiceSelect';
 import { AlertTriangle, Check as CheckIcon, Info, Inbox, type LucideIcon } from 'lucide-react';
 import type {
   BoardLight,
@@ -650,18 +651,20 @@ export function Select({
           {required ? <span className="ml-1 text-tint-bad">必填</span> : null}
         </span>
       ) : null}
-      <select
+      <ChoiceSelect
         id={fieldId}
-        className="field-base text-[13px]"
         value={value}
         disabled={disabled}
         required={required}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={describedBy}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        {children}
-      </select>
+        invalid={Boolean(error)}
+        describedBy={describedBy}
+        label={label}
+        onChange={onChange}
+        options={Children.toArray(children).flatMap((child): ChoiceOption[] => {
+          if (!isValidElement<{ value?: string | number; children?: ReactNode; disabled?: boolean }>(child)) return [];
+          return [{ value: String(child.props.value ?? ''), label: Children.toArray(child.props.children).join(''), disabled: child.props.disabled }];
+        })}
+      />
       {error ? (
         <span id={errorId ?? undefined} className="mt-1.5 block text-[12px] leading-relaxed text-tint-bad">
           {error}
