@@ -86,17 +86,18 @@
       <div class="hero-band">
       <section class="hero wrap" aria-labelledby="hero-h">
         <div class="hero-top">
-          <span class="hero-kicker">AI 面试证据 Agent</span>
+          <span class="hero-kicker"><i aria-hidden="true"></i>AI 面试证据 Agent</span>
           <h1 id="hero-h">
-            <span>让每一句评价，</span><span>都能回到原话。</span>
+            <span>让每一句评价，</span><span class="grad">都能回到原话。</span>
           </h1>
           <div>
             <p class="lead">用同一套岗位标准准备面试、整理原话、衔接下一轮。AI 负责起草，面试官作出判断。</p>
             <div class="hero-cta">
-              <a class="btn btn-primary btn-lg" href="/">体验 Demo</a>
+              <a class="btn btn-primary btn-lg" href="/">体验 Demo<svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg></a>
               <a class="btn btn-ghost btn-lg" href="#compare">查看面评示例</a>
             </div>
             <p class="hero-note">提供演示账号，使用虚构数据。无需上传真实资料。</p>
+            <p class="hero-sources"><span>可导入转写</span><b>钉钉听记</b><b>飞书妙记</b><b>腾讯会议</b><b>本机录音</b></p>
           </div>
         </div>
 
@@ -112,6 +113,7 @@
             </aside>
             <div class="demo-workspace">
             <div class="demo-bar">
+              <span class="win-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="brand-mini">
                 <img class="mark mark-for-light" src="/mark-on-light.png" width="16" height="16" alt="" />
                 <img class="mark mark-for-dark" src="/mark-on-dark.png" width="16" height="16" alt="" />
@@ -207,22 +209,23 @@
         </div>
 
         <div class="facts">
-          <div class="fact"><b>同一套岗位标准</b><p>准备、追问、面评，围绕同一组维度</p></div>
-          <div class="fact"><b>每条结论有出处</b><p>回查原话与时间点，结合上下文复核</p></div>
-          <div class="fact"><b>缺口接到下一轮</b><p>尚未核实的维度，成为下一轮追问</p></div>
-          <div class="fact"><b>关键决定由人完成</b><p>人签标准、人定分、人提交面评</p></div>
+          <div class="fact" data-reveal><span class="fact-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg></span><b>同一套岗位标准</b><p>准备、追问、面评，围绕同一组维度</p></div>
+          <div class="fact" data-reveal><span class="fact-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M7 7h4v4H7zM7 15h10M13 9h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /><rect x="3.5" y="3.5" width="17" height="17" rx="3.5" stroke="currentColor" stroke-width="1.5" /></svg></span><b>每条结论有出处</b><p>回查原话与时间点，结合上下文复核</p></div>
+          <div class="fact" data-reveal><span class="fact-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12h12M12 7l5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /><path d="M20 5v14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg></span><b>缺口接到下一轮</b><p>尚未核实的维度，成为下一轮追问</p></div>
+          <div class="fact" data-reveal><span class="fact-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.6" stroke="currentColor" stroke-width="1.6" /><path d="M5 20a7 7 0 0 1 14 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg></span><b>关键决定由人完成</b><p>人签标准、人定分、人提交面评</p></div>
         </div>
       </section>
       </div>
 
       <!-- 对比 -->
       <section id="compare" class="wrap" aria-labelledby="compare-h">
-        <header class="sec-head">
+        <header class="sec-head" data-reveal>
+          <span class="eyebrow">为什么</span>
           <h2 id="compare-h">面试结束，让判断留下依据</h2>
           <p class="lede">把“凭印象写结论”，变成“对照原话做判断”。下面用同一场虚构面试，展示两种记录方式。</p>
         </header>
         <div class="compare">
-          <article class="cmp cmp-old">
+          <article class="cmp cmp-old" data-reveal>
             <div class="cmp-head"><b>过去</b><span>示例：只留下结论</span></div>
             <figure class="cmp-shot">
               <img
@@ -243,7 +246,7 @@
               <li><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>下一轮面试官需要重新问一遍</li>
             </ul>
           </article>
-          <article class="cmp cmp-new">
+          <article class="cmp cmp-new" data-reveal>
             <div class="cmp-head"><b>用面证</b><span>示例：由人复核、评分</span></div>
             <div class="rows">
               <div class="row">
@@ -280,7 +283,8 @@
 
       <!-- 适用团队 -->
       <section id="teams" class="wrap" aria-labelledby="teams-h">
-        <header class="sec-head">
+        <header class="sec-head" data-reveal>
+          <span class="eyebrow">适用团队</span>
           <h2 id="teams-h">适用团队</h2>
           <p class="lede">适合每年招聘几十至几百人、面试官以业务同事为主、招聘流程仍依赖表格与即时通讯协作的团队。面证整理面试证据与待提交清单，判断仍由人完成。</p>
         </header>
@@ -302,7 +306,7 @@
           </figure>
 
           <div class="team-list">
-            <article class="team">
+            <article class="team" data-reveal>
               <div class="team-mark" aria-hidden="true">
                 <svg viewBox="0 0 24 24" width="21" height="21" fill="none">
                   <path d="M4 19V9m5 10V5m5 14v-7m5 7V8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
@@ -313,7 +317,7 @@
                 <p>未提交名单一屏可见，无需逐日在聊天记录中查找。每条结论都可点回当时的原话。</p>
               </div>
             </article>
-            <article class="team">
+            <article class="team" data-reveal>
               <div class="team-mark" aria-hidden="true">
                 <svg viewBox="0 0 24 24" width="21" height="21" fill="none">
                   <path d="M12 12a3.6 3.6 0 1 0 0-7.2 3.6 3.6 0 0 0 0 7.2Z" stroke="currentColor" stroke-width="1.6" />
@@ -325,7 +329,7 @@
                 <p>一页纸列出本轮待验证的问题与追问方向；面试结束后在原话基础上修改、评分，无需重写。</p>
               </div>
             </article>
-            <article class="team">
+            <article class="team" data-reveal>
               <div class="team-mark" aria-hidden="true">
                 <svg viewBox="0 0 24 24" width="21" height="21" fill="none">
                   <path d="M12 20s-7-4.2-7-9.1A4.1 4.1 0 0 1 12 8a4.1 4.1 0 0 1 7 2.9C19 15.8 12 20 12 20Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
@@ -342,7 +346,8 @@
 
       <!-- 产品功能 -->
       <section id="product" class="wrap" aria-labelledby="product-h">
-        <header class="sec-head">
+        <header class="sec-head" data-reveal>
+          <span class="eyebrow">产品功能</span>
           <h2 id="product-h">从考察标准，到有据的面评</h2>
           <p class="lede">岗位标准、一页纸与面评，共用面试前确定的同一套维度。</p>
         </header>
@@ -353,7 +358,7 @@
           <button type="button" id="feature-review-tab" role="tab" aria-selected="false" aria-controls="feature-review" tabindex="-1" data-product-tab>面评工作台</button>
           <button type="button" id="feature-delivery-tab" role="tab" aria-selected="false" aria-controls="feature-delivery" tabindex="-1" data-product-tab>待提交清单</button>
         </div>
-        <div class="bento">
+        <div class="bento" data-reveal>
           <article class="cell cell-main cell-tint" id="feature-standard" role="tabpanel" aria-labelledby="feature-standard-tab" tabindex="0" data-product-panel>
             <h3><span class="cell-k">岗位标尺</span>先说清，<br />什么样的人算合格</h3>
             <div class="cell-copy">
@@ -425,16 +430,17 @@
       </section>
 
       <!-- 它自己决定下一步 -->
-      <section id="agent" class="wrap" aria-labelledby="agent-h">
-        <header class="sec-head sec-head--shot">
+      <section id="agent" class="wrap band band-soft" aria-labelledby="agent-h">
+        <header class="sec-head sec-head--shot" data-reveal>
           <div>
-            <h2 id="agent-h">找得到原话，也知道何时停下</h2>
+            <span class="eyebrow">查证过程</span>
+          <h2 id="agent-h">找得到原话，也知道何时停下</h2>
             <p class="lede">Agent 会查阅上一轮缺口、尝试不同检索词，并逐条核对引用。三组词仍未找到原话，就如实保留缺口，等待人的决定。以下为虚构样例，检索结果仍需人工复核。</p>
           </div>
         </header>
 
         <div class="agent-grid">
-          <div class="trace" role="group" aria-label="面证使用虚构数据的查证示例">
+          <div class="trace" data-reveal role="group" aria-label="面证使用虚构数据的查证示例">
             <div class="trace-head">
               <b>示例查证记录 · 二面</b>
               <span>林嘉禾 · 高级后端工程师 · 4 个考察维度</span>
@@ -514,19 +520,19 @@
           </div>
 
           <div class="agent-points">
-            <article class="apoint">
+            <article class="apoint" data-reveal>
               <h3>下一步查什么，由系统判断</h3>
               <p>每个维度最多检索三个词：首个词命中即停止；中途发现与原文不符，则更换检索词重来。查证路径因候选人而异，每一步都留有记录，可追溯判断依据。</p>
             </article>
-            <article class="apoint">
+            <article class="apoint" data-reveal>
               <h3>不编造原话</h3>
               <p>结论必须对应候选人说过的原话与时间点，逐字不符的引用会被剔除，并在界面标注剔除数量。没有原话的维度标注「证据不足」，不做推测性补全。</p>
             </article>
-            <article class="apoint">
+            <article class="apoint" data-reveal>
               <h3>可以推进，但不代替确认</h3>
               <p>岗位标准须经用人经理与 HR 双方确认后才生效；未经确认的标准不用于评价。面评中哪些内容作为证据，也须由面试官确认。无论准备到哪一步，这两处仍由人决定。</p>
             </article>
-            <article class="apoint">
+            <article class="apoint" data-reveal>
               <h3>止于草稿</h3>
               <p>评分、推荐与提交始终由面试官完成。面证可以暂停询问，但不能代为提交。上一轮未问清的问题会进入下一场的准备清单，避免重复追问。</p>
             </article>
@@ -535,28 +541,29 @@
       </section>
 
       <!-- 产品边界 -->
-      <section id="principles" class="wrap" aria-labelledby="principles-h">
-        <header class="sec-head">
+      <section id="principles" class="wrap band" aria-labelledby="principles-h">
+        <header class="sec-head" data-reveal>
+          <span class="eyebrow">产品边界</span>
           <h2 id="principles-h">四条产品边界</h2>
           <p class="lede">AI 负责查找证据与起草，判断始终由人作出。任何会削弱面试官独立判断的功能，都不进入产品。</p>
         </header>
         <div class="nos">
-          <article class="no">
+          <article class="no" data-reveal>
             <h3>面试中不弹提示</h3>
             <p>在候选人回答的同时阅读提示，注意力会从对话转向提示，追问也随之脱离原话。</p>
             <p class="instead">面试结束后，列出应追问而未追问的问题。</p>
           </article>
-          <article class="no">
+          <article class="no" data-reveal>
             <h3>不由 AI 打分</h3>
             <p>机器先给出分数，人的判断会被锚定，讨论也会围绕分数展开。</p>
             <p class="instead">评分控件默认留空，由面试官填写。</p>
           </article>
-          <article class="no">
+          <article class="no" data-reveal>
             <h3>不自动筛简历</h3>
             <p>被误筛的候选人不会提出异议，这一环的错误通常无人察觉。</p>
             <p class="instead">标出简历中需要当面核实的表述，去留由人决定。</p>
           </article>
-          <article class="no">
+          <article class="no" data-reveal>
             <h3>不自动催办</h3>
             <p>逐级升级与抄送上级会损害协作关系，也无法提高面评质量。</p>
             <p class="instead">提供一次提醒与一份待提交清单，后续由 HR 决定。</p>
@@ -566,12 +573,13 @@
 
       <!-- 安全与合规 -->
       <section id="trust" class="wrap" aria-labelledby="trust-h">
-        <header class="sec-head">
+        <header class="sec-head" data-reveal>
+          <span class="eyebrow">安全与合规</span>
           <h2 id="trust-h">六项合规设计</h2>
           <p class="lede">依照《个人信息保护法》与《人工智能生成合成内容标识办法》设计，每一项都能在产品中找到对应操作。</p>
         </header>
         <div class="trust-grid">
-          <article class="trust-item">
+          <article class="trust-item" data-reveal>
             <span class="trust-mark" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <rect x="3.5" y="4.5" width="17" height="15" rx="3" stroke="currentColor" stroke-width="1.5" />
@@ -583,7 +591,7 @@
               <p>独立弹窗，同意与拒绝两个按钮同等大小。拒绝后面试照常进行，不影响评价。</p>
             </div>
           </article>
-          <article class="trust-item">
+          <article class="trust-item" data-reveal>
             <span class="trust-mark" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <rect x="3.5" y="5" width="17" height="11" rx="2.5" stroke="currentColor" stroke-width="1.5" />
@@ -595,7 +603,7 @@
               <p>读取钉钉听记、飞书妙记或腾讯会议导出的文字，由面试官确认候选人身份后再导入。线下面试可在浏览器录音，上传后按后端配置转写。</p>
             </div>
           </article>
-          <article class="trust-item">
+          <article class="trust-item" data-reveal>
             <span class="trust-mark" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <path d="M12 3.6 19 6v6c0 4.2-3 6.9-7 8.4-4-1.5-7-4.2-7-8.4V6l7-2.4Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
@@ -606,7 +614,7 @@
               <p>提供录音与转写的到期清理入口。删除请求留痕，候选人可以申请人工复核。</p>
             </div>
           </article>
-          <article class="trust-item">
+          <article class="trust-item" data-reveal>
             <span class="trust-mark" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <path d="M5 5h14v14H5z" stroke="currentColor" stroke-width="1.5" />
@@ -618,7 +626,7 @@
               <p>AI 起草的内容在产品界面与导出文件中均有标识，评分与结论注明由人作出。</p>
             </div>
           </article>
-          <article class="trust-item">
+          <article class="trust-item" data-reveal>
             <span class="trust-mark" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <circle cx="12" cy="12" r="8.4" stroke="currentColor" stroke-width="1.5" />
@@ -630,7 +638,7 @@
               <p>写入考察维度或面评时，对性别、年龄、婚育等敏感表述做规则检查；规则仍可能漏检，需由人复核。</p>
             </div>
           </article>
-          <article class="trust-item">
+          <article class="trust-item" data-reveal>
             <span class="trust-mark" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <rect x="5" y="10.5" width="14" height="9" rx="2.5" stroke="currentColor" stroke-width="1.5" />
@@ -648,8 +656,9 @@
       <!-- 常见问题 -->
       <section id="faq" class="wrap" aria-labelledby="faq-h">
         <div class="faq-wrap">
-          <header class="sec-head">
-            <h2 id="faq-h">常见问题</h2>
+          <header class="sec-head" data-reveal>
+            <span class="eyebrow">FAQ</span>
+          <h2 id="faq-h">常见问题</h2>
             <p class="lede">以下问题涵盖上手方式、数据处理与 AI 的职责范围。</p>
           </header>
           <div class="faq">
@@ -715,12 +724,12 @@
       </section>
 
       <div class="wrap">
-        <div class="close">
+        <div class="close" data-reveal>
           <div>
             <h2>从一个岗位开始</h2>
             <p>选择一个正在招聘的岗位，今天确定考察标准，下一场面试结束后即可获得面评草稿。</p>
           </div>
-          <a class="btn btn-primary btn-lg" href="/">体验 Demo</a>
+          <div class="close-cta"><a class="btn btn-on-brand btn-lg" href="/">体验 Demo</a><a class="btn btn-outline-on-brand btn-lg" href="#faq">先看常见问题</a></div>
         </div>
       </div>
     </main>

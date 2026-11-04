@@ -123,7 +123,32 @@ if (demo) {
   });
 }
 
-const featureTabs = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-product-tab]'));
+/** 导航滚动后加阴影；分区内容进入视口时依次浮现（同一组里按顺序错开 80ms）。 */
+const nav = document.querySelector<HTMLElement>('.nav');
+const syncNav = () => nav?.toggleAttribute('data-scrolled', scrollY > 8);
+syncNav();
+addEventListener('scroll', syncNav, { passive: true });
+
+const revealables = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
+if (revealables.length && 'IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  root.classList.add('js-reveal');
+  const groups = new Map<Element | null, number>();
+  for (const el of revealables) {
+    const n = groups.get(el.parentElement) ?? 0;
+    groups.set(el.parentElement, n + 1);
+    el.style.setProperty('--rd', `${Math.min(n, 5) * 80}ms`);
+  }
+  const io = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.classList.add('is-in');
+      io.unobserve(entry.target);
+    }
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+  revealables.forEach((el) => io.observe(el));
+}
+
+const featureTabs =Array.from(document.querySelectorAll<HTMLButtonElement>('[data-product-tab]'));
 const featurePanels = Array.from(document.querySelectorAll<HTMLElement>('[data-product-panel]'));
 const selectFeature = (index: number, focus = false) => {
   featureTabs.forEach((button, i) => {
