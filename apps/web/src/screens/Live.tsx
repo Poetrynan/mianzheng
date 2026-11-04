@@ -102,16 +102,31 @@ export function LiveScreen({
     }
   };
 
+  /** 同意说明只在面试官点「请候选人选择」时才展示：进页面就弹全屏会挡住导航，而面试可能还没到时间。 */
+  const needsConsent = Boolean(it && it.status === 'scheduled' && !it.consentId);
   useEffect(() => {
-    if (!it || it.status !== 'scheduled' || it.consentId) {
-      setPrompt(null);
-      return;
-    }
+    if (!needsConsent) setPrompt(null);
+  }, [needsConsent, it?.id]);
+
+  useEffect(() => {
+    if (!prompt) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setPrompt(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [prompt]);
+
+  const openConsent = () => {
+    if (!it) return;
+    setPending('展示说明');
+    setError(null);
     api
       .presentConsent(it.id)
       .then(setPrompt)
-      .catch(() => setPrompt(null));
-  }, [it]);
+      .catch((err) => setError(messageOf(err)))
+      .finally(() => setPending(null));
+  };
 
   if (!interviewId) {
     const list = interviews.data ?? [];
@@ -149,7 +164,7 @@ export function LiveScreen({
     <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
       {prompt ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim p-4 backdrop-blur-sm">
-          <div className="surface-2 w-full max-w-lg p-6 shadow-2xl">
+          <div role="dialog" aria-modal="true" aria-label="候选人记录选择" className="surface-2 max-h-[90dvh] w-full max-w-lg overflow-y-auto p-6 shadow-2xl">
             <div className="flex items-center gap-2">
               <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand/12 text-brand">
                 <Shield className="h-4.5 w-4.5" />
@@ -167,6 +182,7 @@ export function LiveScreen({
             <div className="mt-4 grid grid-cols-2 gap-2">
               {prompt.buttons.map((b) => {
                 const grant = b.decision === 'granted';
+                // 两个选项必须视觉等权，否则「同等有效」只是一句话。
                 return (
                   <button
                     key={b.decision}
@@ -181,12 +197,8 @@ export function LiveScreen({
                         grant ? '候选人已同意记录。点击「开始面试」后，可以导入会议转写或用本机录音。' : '已按候选人的选择关闭记录，面试将只做人工笔记。',
                       )
                     }
-                    className={cx(
-                      'press rounded-xl border px-4 py-3 text-[13px] font-medium',
-                      grant
-                        ? 'border-brand/40 bg-brand/10 text-paper hover:bg-brand/15'
-                        : 'border-line bg-raise-soft text-paper hover:border-line-hi hover:bg-raise',
-                    )}
+                    disabled={pending !== null}
+                    className="press min-h-11 rounded-xl border border-line bg-raise-soft px-4 py-3 text-[13px] font-medium text-paper hover:border-brand/40 hover:bg-brand/[0.06] disabled:opacity-60"
                   >
                     {b.label}
                   </button>
@@ -197,6 +209,7 @@ export function LiveScreen({
               两个选项同等有效。拒绝记录不会影响面试进行，也不会影响对候选人的评价。
             </p>
             <ErrorNote message={error} />
+            <div className="mt-3 text-center"><Btn variant="quiet" onClick={() => setPrompt(null)}>稍后选择</Btn></div>
           </div>
         </div>
       ) : null}
@@ -249,9 +262,22 @@ export function LiveScreen({
             </div>
 
             <div className="mt-5 flex flex-wrap items-center gap-2">
-              {it?.status === 'scheduled' ? (
+              {needsConsent ? (
                 <Btn
                   variant="primary"
+                  icon={Shield}
+                  busy={pending === '展示说明'}
+                  busyLabel="正在打开说明…"
+                  disabled={pending !== null}
+                  onClick={openConsent}
+                >
+                  请候选人选择记录方式
+                </Btn>
+              ) : null}
+
+              {it?.status === 'scheduled' ? (
+                <Btn
+                  variant={needsConsent ? undefined : 'primary'}
                   icon={Play}
                   busy={pending === '开始面试'}
                   busyLabel="正在开始…"

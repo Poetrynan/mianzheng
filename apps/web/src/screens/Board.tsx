@@ -142,6 +142,9 @@ export function BoardScreen({
   const selectedRow = (rows.data ?? []).find((r) => r.interviewId === effectiveSelected) ?? null;
   const selectedInterview = (interviews.data ?? []).find((x) => x.id === effectiveSelected) ?? null;
   const reminder = reminders.data?.events[0] ?? null;
+  /** 面试官只看得到自己能做的事：去写（或去看）自己那场的面评；提醒、失效、重启是 HR 的操作，不再以禁用按钮出现。 */
+  const mine = Boolean(me && selectedInterview?.interviewerIds.includes(me.id));
+  const canOpenDraft = hr || mine;
 
   const pick = (interviewId: string) => {
     setSelected(interviewId);
@@ -351,54 +354,54 @@ export function BoardScreen({
                       </div>
                     ) : (
                       <div className="mt-2">
-                        <p className="text-[12px] leading-relaxed text-mist">还没有安排提醒。</p>
-                        <Btn
-                          className="mt-2"
-                          disabled={pending !== null || !hr}
-                          disabledReason={hr ? undefined : '这些操作需要招聘负责人身份。'}
-                          onClick={() => void guard('安排提醒', () => api.queueReminders(effectiveSelected), '面试结束 24 小时后会提醒面试官一次。')}
-                        >
-                          安排 24 小时提醒
-                        </Btn>
+                        <p className="text-[12px] leading-relaxed text-mist">
+                          {hr ? '还没有安排提醒。' : '还没有安排提醒。提醒由招聘负责人安排。'}
+                        </p>
+                        {hr ? (
+                          <Btn
+                            className="mt-2"
+                            disabled={pending !== null}
+                            onClick={() => void guard('安排提醒', () => api.queueReminders(effectiveSelected), '面试结束 24 小时后会提醒面试官一次。')}
+                          >
+                            安排 24 小时提醒
+                          </Btn>
+                        ) : null}
                       </div>
                     )}
                   </div>
 
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <Btn
-                      variant="primary"
-                      disabled={!hr}
-                      disabledReason={hr ? undefined : '这些操作需要招聘负责人身份。'}
-                      onClick={() => {
-                        onPickInterview(effectiveSelected);
-                        onGoDraft?.();
-                      }}
-                    >
-                      去写面评
-                    </Btn>
-                    {reminder && !reminder.suspended ? (
+                    {canOpenDraft ? (
                       <Btn
-                        disabled={pending !== null || !hr}
-                        disabledReason={hr ? undefined : '这些操作需要招聘负责人身份。'}
+                        variant="primary"
+                        onClick={() => {
+                          onPickInterview(effectiveSelected);
+                          onGoDraft?.();
+                        }}
+                      >
+                        {selectedInterview.status === 'eval_submitted' || !mine ? '去看面评' : '去写面评'}
+                      </Btn>
+                    ) : null}
+                    {hr && reminder && !reminder.suspended ? (
+                      <Btn
+                        disabled={pending !== null}
                         onClick={() => void guard('暂停提醒', () => api.suspendReminders(effectiveSelected, '面试官出差或休假，返岗后继续'), '提醒已暂停。')}
                       >
                         暂停提醒
                       </Btn>
                     ) : null}
-                    {reminder?.suspended ? (
+                    {hr && reminder?.suspended ? (
                       <Btn
-                        disabled={pending !== null || !hr}
-                        disabledReason={hr ? undefined : '这些操作需要招聘负责人身份。'}
+                        disabled={pending !== null}
                         onClick={() => void guard('恢复提醒', () => api.resumeReminders(effectiveSelected), '提醒已恢复。')}
                       >
                         恢复提醒
                       </Btn>
                     ) : null}
-                    {selectedInterview.status !== 'expired' && selectedInterview.status !== 'eval_submitted' ? (
+                    {hr && selectedInterview.status !== 'expired' && selectedInterview.status !== 'eval_submitted' ? (
                       <Btn
                         variant="quiet"
-                        disabled={pending !== null || !hr}
-                        disabledReason={hr ? undefined : '这些操作需要招聘负责人身份。'}
+                        disabled={pending !== null}
                         onClick={() => {
                           if (window.confirm('标记失效后，这场面试不再计入待交付；之后仍可以重启。')) {
                             void guard('标记失效', () => api.expire(effectiveSelected), '已标记失效，可以从这里重新启动。');
@@ -408,19 +411,18 @@ export function BoardScreen({
                         标记失效
                       </Btn>
                     ) : null}
-                    {selectedInterview.status === 'expired' ? (
+                    {hr && selectedInterview.status === 'expired' ? (
                       <Btn
-                        disabled={pending !== null || !hr}
-                        disabledReason={hr ? undefined : '这些操作需要招聘负责人身份。'}
+                        disabled={pending !== null}
                         onClick={() => void guard('重启', () => api.restart(effectiveSelected), '面试已重启，准备包和考察标准都还在。')}
                       >
                         重启面试
                       </Btn>
                     ) : null}
                   </div>
-                  {!hr ? <p className="mt-2 text-[12px] text-mist-dim">这些操作需要招聘负责人身份。</p> : null}
+                  {!hr ? <p className="mt-2 text-[12px] text-mist-dim">提醒、标记失效和重启面试由招聘负责人处理。</p> : null}
 
-                  {(reminders.data?.suggestedActions.length ?? 0) > 0 && selectedInterview.status !== 'eval_submitted' ? (
+                  {hr && (reminders.data?.suggestedActions.length ?? 0) > 0 && selectedInterview.status !== 'eval_submitted' ? (
                     <div className="mt-4 border-t border-line-soft pt-3">
                       <Subhead icon={AlertTriangle}>
                         还可以考虑

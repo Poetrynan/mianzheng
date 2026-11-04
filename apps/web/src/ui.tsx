@@ -301,7 +301,7 @@ export function Panel({
   className?: string;
 }) {
   return (
-    <section className={cx('surface-2 p-5', PANEL_TONE[tone], className)}>
+    <section className={cx('surface-2 min-w-0 p-5', PANEL_TONE[tone], className)}>
       <header className="mb-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex min-w-0 items-start gap-3">

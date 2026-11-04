@@ -208,6 +208,12 @@ export function DraftScreen({
     setOpenCheck(null);
   };
 
+  /** 当前这场还没有面评时，给出已经有面评的场次，别让人停在空页上。 */
+  const withDrafts = (interviews.data ?? [])
+    .filter((x) => x.id !== interviewId && (x.status === 'eval_pending' || x.status === 'eval_submitted'))
+    .sort((a, b) => (a.scheduledAt < b.scheduledAt ? 1 : -1))
+    .slice(0, 3);
+
   /** 灰着的按钮要说得清为什么灰着，而不是让人自己猜。 */
   const draftBlockedReason = !it
     ? '先在右上角选择一场面试。'
@@ -287,6 +293,18 @@ export function DraftScreen({
             <p className="mt-1.5 text-[12px] leading-relaxed text-mist-dim">
               草稿只引用对话原话，每一项的评分和结论仍然由你给出。
             </p>
+            {withDrafts.length > 0 ? (
+              <div className="mt-3 border-t border-line-soft pt-3">
+                <p className="text-[12px] text-mist">这几场已经有面评，可以先看：</p>
+                <div className="mt-2 flex flex-col gap-1.5">
+                  {withDrafts.map((x) => (
+                    <Chip key={x.id} selected={false} onClick={() => onPickInterview(x.id)} right={<InterviewPill status={x.status} />}>
+                      {dir.labelOf(x)}
+                    </Chip>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
         )}
 
