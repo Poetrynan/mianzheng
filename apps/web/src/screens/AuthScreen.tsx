@@ -132,7 +132,7 @@ export function AuthScreen() {
       <aside className="glass-rail relative hidden px-10 py-10 lg:flex lg:flex-col xl:px-14">
         <div className="relative flex h-full flex-col">
           <Brand />
-          <div className="my-auto max-w-[540px] py-12">
+          <div className="my-auto max-w-[580px] py-10">
             <h1 className="font-serif text-[38px] leading-[1.26] tracking-tight text-paper xl:text-[44px]">
               让每一句评价，
               <br />
@@ -142,11 +142,25 @@ export function AuthScreen() {
               面证把考察标准、追问和面评放在同一条证据链上。面试官少写一点，用人经理多看一点依据。
             </p>
 
-            <div className="mt-9">
-              <EvidenceChain />
-            </div>
+            <figure className="mt-8">
+              <div className="auth-interview-frame overflow-hidden rounded-2xl border border-line-soft">
+                <img
+                  src="/images/auth-interview-v1.webp"
+                  width={1536}
+                  height={1024}
+                  alt="两位职场人士面对面交流，一人专注倾听并用纸笔记录"
+                  decoding="async"
+                  fetchPriority="high"
+                  className="auth-interview-photo block aspect-[3/2] h-auto w-full object-cover"
+                />
+              </div>
+              <figcaption className="mt-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                <span className="text-[13px] font-medium text-paper">把注意力留给对话，把判断建立在依据上。</span>
+                <span className="text-[11px] text-mist-dim">AI 生成情境图</span>
+              </figcaption>
+            </figure>
 
-            <ul className="mt-7 flex flex-wrap gap-x-5 gap-y-3 text-[12px] text-mist">
+            <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-3 text-[12px] text-mist">
               <li className="flex items-center gap-1.5">
                 <Stamp className="h-3.5 w-3.5 text-human" strokeWidth={1.8} aria-hidden />
                 标准由人签字
@@ -382,103 +396,5 @@ export function AuthScreen() {
         </footer>
       </main>
     </div>
-  );
-}
-
-/** A real SVG, not a screenshot: the same five steps the product enforces. */
-function EvidenceChain() {
-  const nodes = [
-    { title: '简历', sub: '经历与缺口' },
-    { title: '标准', sub: '考察维度' },
-    { title: '追问', sub: '该问什么' },
-    { title: '原话', sub: '逐字引用' },
-    { title: '面评', sub: '人的判断' },
-  ];
-  const ink = 'var(--color-paper)';
-  const quiet = 'var(--color-mist-dim)';
-  const frame = 'var(--color-line-hi)';
-  const pane = 'var(--glass-bg)';
-  const human = 'var(--color-human)';
-  const humanLine = 'color-mix(in srgb, var(--color-human) 55%, transparent)';
-  const humanPane = 'color-mix(in srgb, var(--color-human) 10%, transparent)';
-
-  return (
-    <svg viewBox="0 0 520 232" className="h-auto w-full" role="img" aria-labelledby="chain-title chain-desc">
-      <title id="chain-title">一条评价的来路</title>
-      <desc id="chain-desc">从简历到标准、追问、原话，最后到人的判断，每一步都保留依据。</desc>
-      <defs>
-        <marker id="chain-arrow" viewBox="0 0 8 8" refX="6.4" refY="4" markerWidth="7" markerHeight="7" orient="auto">
-          <path d="M0.6 1.1 L6.4 4 L0.6 6.9 Z" style={{ fill: frame }} />
-        </marker>
-      </defs>
-
-      <text x="16" y="26" style={{ fill: quiet }} fontSize="12" letterSpacing="1.2" fontFamily="Inter, 'PingFang SC', sans-serif">
-        一条评价的来路
-      </text>
-
-      {nodes.map((node, index) => {
-        const x = 16 + index * 100;
-        const last = index === nodes.length - 1;
-        return (
-          <g key={node.title}>
-            <rect
-              x={x}
-              y="48"
-              width="88"
-              height="66"
-              rx="10"
-              style={{ fill: last ? humanPane : pane, stroke: last ? humanLine : frame }}
-            />
-            <circle
-              cx={x + 14}
-              cy="63"
-              r="6.5"
-              style={{
-                fill: last ? 'color-mix(in srgb, var(--color-human) 16%, transparent)' : 'var(--color-raise)',
-                stroke: last ? human : frame,
-              }}
-            />
-            <text
-              x={x + 14}
-              y="66.5"
-              textAnchor="middle"
-              style={{ fill: last ? human : quiet }}
-              fontSize="10"
-              fontFamily="Inter, 'PingFang SC', sans-serif"
-            >
-              {index + 1}
-            </text>
-            <text x={x + 44} y="84" textAnchor="middle" style={{ fill: ink }} fontSize="13.5" fontFamily="Inter, 'PingFang SC', sans-serif">
-              {node.title}
-            </text>
-            <text x={x + 44} y="101" textAnchor="middle" style={{ fill: quiet }} fontSize="11" fontFamily="Inter, 'PingFang SC', sans-serif">
-              {node.sub}
-            </text>
-            {index < nodes.length - 1 ? (
-              <line
-                x1={x + 90}
-                y1="81"
-                x2={x + 98}
-                y2="81"
-                style={{ stroke: frame }}
-                strokeOpacity="0.8"
-                strokeWidth="1.2"
-                markerEnd="url(#chain-arrow)"
-              />
-            ) : null}
-          </g>
-        );
-      })}
-
-      <path d="M360 116 L360 144" style={{ stroke: frame }} strokeOpacity="0.7" strokeWidth="1.2" strokeDasharray="3 3" />
-      <rect x="16" y="148" width="488" height="64" rx="10" style={{ fill: 'var(--color-raise-soft)', stroke: frame }} />
-      <rect x="16" y="148" width="1" height="64" rx="0.5" style={{ fill: human }} />
-      <text x="32" y="171" style={{ fill: ink }} fontSize="12.5" fontFamily="Inter, 'PingFang SC', sans-serif">
-        “我先看数据，当时用压测数据验证瓶颈在读库，我提出加只读副本和缓存分层。”
-      </text>
-      <text x="32" y="192" style={{ fill: quiet }} fontSize="12" fontFamily="Inter, 'PingFang SC', sans-serif">
-        面试原文 · 00:15:45 · 由面试官确认后进入面评
-      </text>
-    </svg>
   );
 }

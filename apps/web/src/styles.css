@@ -228,6 +228,19 @@
 }
 
 @layer components {
+  .auth-interview-frame {
+    background: var(--color-ink-850);
+  }
+
+  .auth-interview-photo {
+    /* Retain the photograph's quiet midtones against the darker workspace. */
+    filter: brightness(0.84) saturate(0.75);
+  }
+
+  html[data-theme='light'] .auth-interview-photo {
+    filter: none;
+  }
+
   /*
    * Two surfaces, two jobs. A panel is a solid card sitting on the page: a hairline and a tight
    * shadow, nothing that refracts. Blur on every card flattens the hierarchy — every block ends up
