@@ -156,7 +156,6 @@ export function AuthScreen() {
               </div>
               <figcaption className="mt-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                 <span className="text-[13px] font-medium text-paper">把注意力留给对话，把判断建立在依据上。</span>
-                <span className="text-[11px] text-mist-dim">AI 生成情境图</span>
               </figcaption>
             </figure>
 
