@@ -35,15 +35,15 @@ export function DemoGuide({
 
   return (
     <section className="surface-2 overflow-hidden" aria-labelledby="demo-guide-title">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line-soft bg-raise-soft px-4 py-2.5 sm:px-5">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-brand/10 bg-brand/[0.06] px-4 py-3 sm:px-6">
         <span className="inline-flex items-center gap-2 text-[12px] font-medium text-mist">
           <BookOpen className="h-3.5 w-3.5" aria-hidden />
           示例工作区 · 虚构数据
         </span>
         <Badge>{health.data?.llmDriver === 'mock' ? 'AI 使用固定样例输出' : '流程演示'}</Badge>
       </div>
-      <div className="p-4 sm:p-5">
-        <h2 id="demo-guide-title" className="text-[17px] font-semibold text-paper">先看这一轮，再看下一轮怎么接</h2>
+      <div className="p-4 sm:p-6">
+        <h2 id="demo-guide-title" className="text-[20px] font-semibold text-paper">先看这一轮，再看下一轮怎么接</h2>
         <p className="mt-2 max-w-[70ch] text-[13px] leading-relaxed text-mist">
           看同一位候选人：按什么标准评价、哪些判断有原话、哪些仍需核实。证据不足表示尚未核实，不代表能力不达标。
         </p>
@@ -57,9 +57,9 @@ export function DemoGuide({
                 { title: `看第 ${next.round} 轮准备`, desc: '看上一轮的缺口如何进入本轮追问。', action: () => onOpenInterview('prep', next.id) },
               ].map((item, index) => (
                 <button key={item.title} type="button" onClick={item.action}
-                  className="press group rounded-xl border border-line bg-raise-soft p-3 text-left transition-colors hover:border-line-hi hover:bg-raise">
+                  className="press group rounded-lg border border-line bg-ink-900 p-4 text-left hover:border-brand/40 hover:bg-brand/[0.04]">
                   <span className="flex items-center justify-between gap-2 text-[13px] font-medium text-paper">
-                    <span><span className="num mr-2 text-mist-dim">0{index + 1}</span>{item.title}</span>
+                    <span><span className="num mr-2 text-brand">0{index + 1}</span>{item.title}</span>
                     <ArrowRight className="h-3.5 w-3.5 shrink-0 text-mist-dim" aria-hidden />
                   </span>
                   <span className="mt-2 block text-[12px] leading-relaxed text-mist">{item.desc}</span>

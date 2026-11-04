@@ -6,8 +6,8 @@
  */
 @theme {
   /*
-   * Graphite on glass. Everything the machine produces is colourless; the only warm hue in the
-   * system belongs to the person in the room (--color-human). No green anywhere.
+   * Enterprise workspace: blue for actions, neutral surfaces for reading,
+   * and a separate warm tone for decisions confirmed by people.
    */
   --color-ink-1000: #0a0e13;
   --color-ink-950: #0c1116;
@@ -22,17 +22,17 @@
   --color-mist: #a9b4c2;
   --color-mist-dim: #828e9d;
   --color-paper: #eef2f7;
-  --color-brand: #e8edf3;
-  --color-brand-deep: #c2cbd6;
-  --color-brand-hi: #ffffff;
-  --color-on-brand: #0b1016;
+  --color-brand: #a8c8ff;
+  --color-brand-deep: #86b4ff;
+  --color-brand-hi: #c3d9ff;
+  --color-on-brand: #102443;
   --color-human: #e7b184;
   --color-ok: #9dc2e8;
   --color-warn: #d9b871;
   --color-bad: #ef9c94;
   /* Text that sits inside a 12% tint of its own colour. Dark mode needs no change; light mode
    * shifts these down the same hue, because a mid-tone colour on its own pale tint is ~3:1. */
-  --color-tint-brand: #e8edf3;
+  --color-tint-brand: #b8d2ff;
   --color-tint-human: #eec09a;
   --color-tint-ok: #b3d0ee;
   --color-tint-warn: #e5c98f;
@@ -86,27 +86,27 @@
   html[data-theme='light'] {
     color-scheme: light;
 
-    --color-ink-1000: #e3e8ef;
-    --color-ink-950: #eef1f5;
+    --color-ink-1000: #edf1f7;
+    --color-ink-950: #f5f7fa;
     --color-ink-900: #ffffff;
-    --color-ink-850: #f6f8fb;
-    --color-ink-800: #eaeef3;
+    --color-ink-850: #f8f9fc;
+    --color-ink-800: #edf1f7;
     --color-line: #d9dfe7;
     --color-line-soft: #e7ebf1;
     --color-line-hi: #c3cbd6;
     --color-line-field: #7b8698;
     --color-mist: #4b5563;
     --color-mist-dim: #5f6a7a;
-    --color-paper: #0e1520;
-    --color-brand: #121a25;
-    --color-brand-deep: #000000;
-    --color-brand-hi: #2b3644;
+    --color-paper: #1f2329;
+    --color-brand: #245bdb;
+    --color-brand-deep: #1948b8;
+    --color-brand-hi: #1948b8;
     --color-on-brand: #ffffff;
     --color-human: #8f4c12;
     --color-ok: #27527a;
     --color-warn: #6f520b;
     --color-bad: #962d23;
-    --color-tint-brand: #121a25;
+    --color-tint-brand: #1948b8;
     --color-tint-human: #82450f;
     --color-tint-ok: #1f4a70;
     --color-tint-warn: #5f460a;
@@ -121,26 +121,26 @@
     --btn-accent-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.16),
       0 6px 16px -12px rgba(15, 23, 42, 0.55);
-    --glass-bg: rgba(255, 255, 255, 0.72);
+    --glass-bg: #ffffff;
     --glass-line: rgba(15, 23, 42, 0.12);
     --glass-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.95);
     --glass-shadow:
       0 1px 2px rgba(15, 23, 42, 0.06),
       0 30px 60px -34px rgba(30, 45, 70, 0.36);
-    --glass-blur: blur(18px) saturate(160%);
+    --glass-blur: none;
     --glass-solid: #ffffff;
-    --glass-rail: rgba(255, 255, 255, 0.55);
+    --glass-rail: #f8f9fc;
     --field-bg: #ffffff;
     --field-bg-focus: #ffffff;
     --field-placeholder: rgba(75, 85, 99, 0.82);
     --scroll-thumb: #c3cbd6;
     --scroll-thumb-hover: #a7b1c0;
-    --wash-a: rgba(255, 255, 255, 0.95);
-    --wash-b: rgba(120, 158, 214, 0.14);
-    --wash-c: rgba(226, 176, 116, 0.12);
+    --wash-a: transparent;
+    --wash-b: transparent;
+    --wash-c: transparent;
     --panel-bg: #ffffff;
-    --panel-line: rgba(15, 23, 42, 0.11);
-    --panel-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+    --panel-line: #e3e7ed;
+    --panel-shadow: 0 2px 6px rgba(31, 35, 41, 0.025);
     --inset-bg: rgba(15, 23, 42, 0.035);
   }
 
@@ -264,8 +264,25 @@
     background: var(--panel-bg);
     border: 1px solid var(--panel-line);
     box-shadow: var(--panel-shadow);
-    border-radius: 14px;
+    border-radius: 12px;
   }
+
+  .workspace-nav[aria-current='page'] {
+    color: var(--color-tint-brand);
+    background: color-mix(in srgb, var(--color-brand) 10%, transparent);
+  }
+  .workspace-nav[aria-current='page'] svg { color: currentColor; }
+
+  .auth-layout { background: var(--panel-bg); }
+  .auth-story {
+    background: color-mix(in srgb, var(--color-brand) 6%, var(--color-ink-900));
+    border-right: 1px solid var(--color-line-soft);
+  }
+  .auth-form-card { border: 0; box-shadow: none; background: transparent; }
+  .auth-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .auth-steps li { border-top: 2px solid color-mix(in srgb, var(--color-brand) 25%, transparent); padding-top: 10px; }
+  .auth-steps span { display: block; color: var(--color-brand); font-size: 11px; margin-bottom: 3px; }
+  .auth-steps strong { font-size: 12px; font-weight: 500; }
 
   /*
    * A block inside a panel: the same surface, one step down. It carries no border and no shadow of

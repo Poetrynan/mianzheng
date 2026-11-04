@@ -39,8 +39,12 @@ export function AuthScreen() {
     setErrors({});
     setConfirm('');
     setShowPassword(false);
-    (mode === 'register' ? orgRef : emailRef).current?.focus();
+    if (window.matchMedia('(min-width: 1024px)').matches) {
+      (mode === 'register' ? orgRef : emailRef).current?.focus({ preventScroll: true });
+    }
   }, [mode]);
+
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }); }, []);
 
   /** 改过这一栏，就把这一栏的错误撤掉。 */
   const edit = (field: keyof FieldErrors, next: string, set: (value: string) => void) => {
@@ -118,22 +122,13 @@ export function AuthScreen() {
   );
 
   return (
-    <div className="relative grid min-h-[100dvh] lg:grid-cols-[1.04fr_0.96fr]">
-      {/* The only two hues in the product, both kept faint: warmth for the people in the room,
-          steel for everything the system reports. They exist so the glass has light to bend. */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(620px 480px at 16% 20%, color-mix(in srgb, var(--color-human) 18%, transparent), transparent 64%), radial-gradient(680px 540px at 74% 60%, color-mix(in srgb, var(--color-ok) 16%, transparent), transparent 66%)',
-        }}
-        aria-hidden
-      />
-      <aside className="glass-rail relative hidden px-10 py-10 lg:flex lg:flex-col xl:px-14">
+    <div className="auth-layout relative grid min-h-[100dvh] lg:grid-cols-[1fr_1fr]">
+      <aside className="auth-story relative hidden px-10 py-9 lg:flex lg:flex-col xl:px-16">
         <div className="relative flex h-full flex-col">
           <Brand />
-          <div className="my-auto max-w-[580px] py-10">
-            <h1 className="font-serif text-[38px] leading-[1.26] tracking-tight text-paper xl:text-[44px]">
+          <div className="my-auto max-w-[540px] py-10">
+            <p className="mb-4 text-[13px] font-medium text-brand">面试准备 · 原话记录 · 面评协作</p>
+            <h1 className="text-[36px] font-semibold leading-[1.4] tracking-tight text-paper xl:text-[42px]">
               让每一句评价，
               <br />
               都能回到原话。
@@ -142,7 +137,7 @@ export function AuthScreen() {
               面证把考察标准、追问和面评放在同一条证据链上。面试官少写一点，用人经理多看一点依据。
             </p>
 
-            <figure className="mt-8">
+            <figure className="mt-7">
               <div className="auth-interview-frame overflow-hidden rounded-2xl border border-line-soft">
                 <img
                   src="/images/auth-interview-v1.webp"
@@ -151,13 +146,19 @@ export function AuthScreen() {
                   alt="两位职场人士面对面交流，一人专注倾听并用纸笔记录"
                   decoding="async"
                   fetchPriority="high"
-                  className="auth-interview-photo block aspect-[3/2] h-auto w-full object-cover"
+                  className="auth-interview-photo block aspect-[16/9] h-auto w-full object-cover"
                 />
               </div>
               <figcaption className="mt-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                 <span className="text-[13px] font-medium text-paper">把注意力留给对话，把判断建立在依据上。</span>
               </figcaption>
             </figure>
+
+            <ol className="auth-steps mt-6" aria-label="面试协作流程">
+              <li><span>面试前</span><strong>带着标准准备</strong></li>
+              <li><span>面试后</span><strong>对照原话核实</strong></li>
+              <li><span>下一轮</span><strong>接着缺口追问</strong></li>
+            </ol>
 
             <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-3 text-[12px] text-mist">
               <li className="flex items-center gap-1.5">
@@ -195,7 +196,7 @@ export function AuthScreen() {
         </div>
 
         <div className="flex flex-1 items-center justify-center px-5 py-8">
-          <div className="w-full max-w-[404px]">
+          <div className="w-full max-w-[440px]">
             {bootError ? (
               <div className="mb-4 rounded-xl border border-line bg-raise-soft px-3 py-3">
                 <p className="text-[12px] leading-relaxed text-mist">连接服务时遇到问题：{bootError}</p>
@@ -209,7 +210,7 @@ export function AuthScreen() {
               </div>
             ) : null}
 
-            <div className="surface-2 p-6 sm:p-7">
+            <div className="auth-form-card surface-2 px-1 py-4 sm:px-5">
               <Segmented<Mode>
                 options={[
                   { id: 'login', label: '登录' },
@@ -222,7 +223,7 @@ export function AuthScreen() {
               />
 
               <div className="mt-6">
-                <h2 className="font-serif text-[26px] leading-tight tracking-tight text-paper">
+                <h2 className="text-[28px] font-semibold leading-tight tracking-tight text-paper">
                   {mode === 'login' ? '登录工作区' : '从第一位成员开始'}
                 </h2>
                 <p className="mt-2 text-[13px] leading-relaxed text-mist">

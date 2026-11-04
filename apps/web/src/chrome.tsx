@@ -8,12 +8,16 @@ export function Brand({ compact = false }: { compact?: boolean }) {
     <div className="flex items-center gap-2">
       <img
         src="/mark-on-light.png"
+        width={32}
+        height={32}
         alt=""
         aria-hidden="true"
         className={cx('mark-for-light shrink-0', compact ? 'h-7 w-7' : 'h-8 w-8')}
       />
       <img
         src="/mark-on-dark.png"
+        width={32}
+        height={32}
         alt=""
         aria-hidden="true"
         className={cx('mark-for-dark shrink-0', compact ? 'h-7 w-7' : 'h-8 w-8')}

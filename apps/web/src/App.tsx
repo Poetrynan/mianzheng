@@ -225,7 +225,7 @@ function Workspace() {
       >
         跳到主要内容
       </a>
-      <aside className="glass-rail sticky top-0 hidden h-screen w-[236px] shrink-0 flex-col overflow-y-auto px-3 py-4 [scrollbar-gutter:stable] lg:flex">
+      <aside className="glass-rail sticky top-0 hidden h-[100dvh] w-[224px] shrink-0 flex-col overflow-y-auto px-3 py-5 [scrollbar-gutter:stable] lg:flex">
         <div className="px-1">
           <Brand />
           <p className="mt-3 truncate text-[12px] text-mist-dim">
@@ -265,11 +265,11 @@ function Workspace() {
                       onClick={() => openTab(item.tab)}
                       aria-current={on ? 'page' : undefined}
                       className={cx(
-                        'press flex items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[13px]',
-                        on ? 'bg-brand font-semibold text-on-brand' : 'text-mist hover:bg-raise-soft hover:text-paper',
+                        'workspace-nav press flex min-h-10 items-center gap-3 rounded-lg px-3 py-2 text-left text-[13px]',
+                        on ? 'font-semibold' : 'text-mist hover:bg-raise-soft hover:text-paper',
                       )}
                     >
-                      <Icon className={cx('h-4 w-4 shrink-0', on ? 'text-on-brand' : 'text-mist-dim')} strokeWidth={1.9} aria-hidden />
+                      <Icon className="h-4 w-4 shrink-0 text-mist-dim" strokeWidth={1.9} aria-hidden />
                       <span className="truncate">{item.label}</span>
                     </button>
                   );
@@ -301,7 +301,7 @@ function Workspace() {
         <header className="glass-bar sticky top-0 z-30 px-4 py-3 sm:px-6">
           <div className="mx-auto flex max-w-[1180px] flex-wrap items-center justify-between gap-3">
             <div className="min-w-0">
-              <h1 className="truncate text-[17px] font-semibold leading-snug text-paper">{current.label}</h1>
+              <h1 className="truncate text-[20px] font-semibold leading-snug text-paper">{current.label}</h1>
               <p className="mt-0.5 truncate text-[12px] text-mist">{current.desc}</p>
             </div>
 
@@ -343,8 +343,8 @@ function Workspace() {
                 onClick={() => openTab(item.tab)}
                 aria-current={on ? 'page' : undefined}
                 className={cx(
-                  'press shrink-0 rounded-lg px-2 py-1 text-[12px]',
-                  on ? 'bg-brand font-semibold text-on-brand' : 'text-mist hover:bg-raise-soft',
+                  'workspace-nav press shrink-0 rounded-lg px-3 py-2 text-[12px]',
+                  on ? 'font-semibold' : 'text-mist hover:bg-raise-soft',
                 )}
               >
                 {item.label}

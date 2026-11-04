@@ -314,7 +314,7 @@ export function Panel({
               {headingLevel === 3 ? (
                 <h3 className="text-[14px] leading-snug text-paper">{title}</h3>
               ) : (
-                <h2 className="text-[15px] leading-snug text-paper">{title}</h2>
+                <h2 className="text-[16px] leading-snug text-paper">{title}</h2>
               )}
             </div>
           </div>
@@ -476,7 +476,7 @@ export function Btn({
         ? 'border border-bad/30 bg-bad/10 text-tint-bad hover:bg-bad/[0.18]'
         : variant === 'quiet'
           ? 'border border-transparent text-mist hover:bg-raise hover:text-paper'
-          : 'border border-line bg-raise text-paper hover:border-line-hi hover:bg-raise-hi';
+          : 'border border-line bg-ink-900 text-paper hover:border-line-hi hover:bg-raise-soft';
   return (
     <button
       type={type}
@@ -485,7 +485,7 @@ export function Btn({
       title={title ?? (disabled ? disabledReason : undefined)}
       aria-busy={busy || undefined}
       className={cx(
-        'press inline-flex min-h-8 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-medium whitespace-nowrap',
+        'press inline-flex min-h-9 items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-[13px] font-medium whitespace-nowrap',
         'disabled:pointer-events-none disabled:opacity-45 disabled:shadow-none',
         full && 'w-full',
         styles,
@@ -867,18 +867,18 @@ export function Segmented<T extends string>({
               'press flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-[12px] font-medium transition',
               full && 'flex-1',
               on
-                ? 'bg-brand font-semibold text-on-brand'
+                ? 'bg-ink-900 font-semibold text-tint-brand shadow-sm'
                 : 'text-mist hover:bg-raise-soft hover:text-paper',
               disabled && 'pointer-events-none opacity-40',
             )}
           >
-            {Icon ? <Icon className={cx('h-3.5 w-3.5', on ? 'text-on-brand' : 'text-mist-dim')} strokeWidth={2} aria-hidden /> : null}
+            {Icon ? <Icon className={cx('h-3.5 w-3.5', on ? 'text-tint-brand' : 'text-mist-dim')} strokeWidth={2} aria-hidden /> : null}
             <span>{option.label}</span>
             {option.badge !== undefined ? (
               <span
                 className={cx(
                   'num rounded-full px-1.5 py-0.2 text-[11px]',
-                  on ? 'bg-on-brand/15 text-on-brand' : 'bg-raise-hi text-mist-dim',
+                  on ? 'bg-brand/10 text-tint-brand' : 'bg-raise-hi text-mist-dim',
                 )}
               >
                 {option.badge}

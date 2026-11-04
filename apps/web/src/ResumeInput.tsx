@@ -86,7 +86,7 @@ export function ResumeInput({ value, onChange, onNameSuggested, onBusyChange, di
             <p className="mt-3 text-[14px] font-medium text-paper">{busyName ? '正在读取简历…' : '拖入 CV，或选择文件'}</p>
             <p className="mt-1 break-all text-[12px] leading-relaxed text-mist">{busyName || '支持 PDF、DOCX、TXT，单份不超过 5 MB'}</p>
             <div className="mt-4 flex justify-center gap-2">
-              <Btn key="choose-file" onClick={() => { if (input.current) { input.current.value = ''; input.current.click(); } }} disabled={disabled || Boolean(busyName)}>
+              <Btn key="choose-file" variant="primary" onClick={() => { if (input.current) { input.current.value = ''; input.current.click(); } }} disabled={disabled || Boolean(busyName)}>
                 {busyName ? '正在读取…' : '选择 CV 文件'}
               </Btn>
               {busyName ? <Btn key="cancel-read" variant="quiet" onClick={() => controller.current?.abort()}>取消读取</Btn> : null}
