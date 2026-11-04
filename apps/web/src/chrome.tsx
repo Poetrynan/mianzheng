@@ -31,7 +31,7 @@ export function Brand({ compact = false }: { compact?: boolean }) {
         >
           面证
         </span>
-        <span className="block text-[11px] leading-tight text-mist">面试官副驾</span>
+        <span className="block text-[12px] leading-tight text-mist">面试官副驾</span>
       </span>
     </div>
   );
@@ -52,7 +52,7 @@ export function ThemeToggle({ className, showLabel = false }: { className?: stri
       title={label}
       aria-label={label}
       className={cx(
-        'press flex items-center gap-2 rounded-lg px-2 py-1.5 text-[12px] text-mist hover:bg-raise hover:text-paper',
+        'press flex items-center justify-center gap-2 rounded-lg px-2 py-1.5 text-[12px] text-mist hover:bg-raise hover:text-paper max-md:min-w-11',
         className,
       )}
     >

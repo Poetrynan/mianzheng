@@ -154,7 +154,7 @@ export function AgentTrace({
                           {step.kind === 'verify' ? '没通过' : '没成'}
                         </Badge>
                       ) : null}
-                      {attempt > 1 ? <span className="text-[11px] text-mist-dim">第 {attempt} 次</span> : null}
+                      {attempt > 1 ? <span className="text-[12px] text-mist-dim">第 {attempt} 次</span> : null}
                     </div>
                     {step.detail ? (
                       <p className="mt-0.5 text-[12px] leading-relaxed text-mist">{step.detail}</p>
@@ -227,7 +227,7 @@ export function AgentTrace({
                 >
                   记下回答
                 </Btn>
-                <span className="text-[11px] text-mist-dim">助手只记录你的原话，不替你下结论</span>
+                <span className="text-[12px] text-mist-dim">助手只记录你的原话，不替你下结论</span>
               </div>
             </div>
           ) : null}

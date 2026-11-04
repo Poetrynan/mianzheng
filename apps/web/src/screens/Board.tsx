@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { api } from '../api/client';
 import { messageOf, useLoader, useSession } from '../session';
+import type { BoardRow } from '../api/types';
 import {
   Badge,
   Btn,
@@ -40,6 +41,17 @@ const LIGHT_FILTERS = [
   { id: 'overdue', label: '已标记失效' },
   { id: 'done', label: '已面评' },
 ] as const;
+
+/** 已提交的面评不再「等待」；只有还没交的才显示面试结束后过了多久。 */
+function waitText(r: BoardRow): string {
+  if (r.submittedOnTime !== null) return '已提交';
+  return r.waitingHours === null ? '面试未结束' : `${r.waitingHours} 小时`;
+}
+
+function OnTime({ value }: { value: boolean | null }) {
+  if (value === null) return <span className="text-[12px] text-mist-dim">等待提交</span>;
+  return value ? <Badge tone="ok">24 小时内</Badge> : <Badge tone="bad">超过 24 小时</Badge>;
+}
 
 export function BoardScreen({
   focusInterviewId = '',
@@ -155,7 +167,8 @@ export function BoardScreen({
     <div className="grid gap-4">
       <Segmented<BoardTab>
         options={[
-          { id: 'delivery', label: '待交付', icon: Users, badge: overview.data?.awaitingEval ?? 0 },
+          // 页签是「面评交付」这一视图，不是「待交付」这一筛选；角标只在真有待提交时出现。
+          { id: 'delivery', label: '面评交付', icon: Users, badge: overview.data?.awaitingEval || undefined },
           { id: 'weekly', label: '本周周报', icon: FileText },
         ]}
         value={activeTab}
@@ -234,7 +247,40 @@ export function BoardScreen({
               {rows.loading ? (
                 <Loading label="正在读取面试列表" rows={5} />
               ) : (
-                <div className="overflow-x-auto rounded-xl border border-line-soft [scrollbar-gutter:stable]">
+                <>
+                {/* 手机上表格只放得下两列，状态和等待时长正是这一页的重点，所以改成卡片。 */}
+                <ul className="flex flex-col gap-2 sm:hidden">
+                  {filteredRows.map((r) => {
+                    const isSel = effectiveSelected === r.interviewId;
+                    return (
+                      <li key={r.interviewId}>
+                        <button
+                          type="button"
+                          aria-current={isSel ? 'true' : undefined}
+                          onClick={() => pick(r.interviewId)}
+                          className={cx(
+                            'press w-full rounded-xl border p-3 text-left',
+                            isSel ? 'border-brand/40 bg-brand/[0.06]' : 'border-line-soft bg-raise-soft',
+                          )}
+                        >
+                          <span className="flex items-center justify-between gap-2">
+                            <span className="truncate text-[14px] font-medium text-paper">{r.candidateLabel}</span>
+                            <OnTime value={r.submittedOnTime} />
+                          </span>
+                          <span className="mt-1 block truncate text-[12px] text-mist">
+                            {r.jobTitle} · 第 {r.round} 轮 · {r.interviewers.join('、')}
+                          </span>
+                          <span className="mt-2 flex items-center justify-between gap-2 text-[12px]">
+                            <Light light={r.light} />
+                            <span className="num text-mist">{waitText(r)}</span>
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                  {filteredRows.length === 0 ? <Empty text="没有符合条件的面试" /> : null}
+                </ul>
+                <div className="hidden overflow-x-auto rounded-xl border border-line-soft [scrollbar-gutter:stable] sm:block">
                   <table className="w-full min-w-[760px] table-fixed border-collapse text-[13px]">
                     <thead>
                       <tr className="border-b border-line-soft bg-raise-soft text-left text-mist-dim">
@@ -248,7 +294,7 @@ export function BoardScreen({
                           状态
                         </th>
                         <th scope="col" className="w-[11%] py-2 pr-2 font-medium">
-                          已等待
+                          等待提交
                         </th>
                         <th scope="col" className="w-[16%] py-2 pr-2 font-medium">
                           面试官
@@ -285,25 +331,17 @@ export function BoardScreen({
                             </td>
                             <td className="py-3 pr-2 text-mist">
                               <span className="block truncate">{r.jobTitle}</span>
-                              <span className="block text-[11px] text-mist-dim">
+                              <span className="block text-[12px] text-mist-dim">
                                 第 {r.round} 轮 · {INTERVIEW_LABEL[r.interviewStatus]}
                               </span>
                             </td>
                             <td className="py-3 pr-2">
                               <Light light={r.light} />
                             </td>
-                            <td className="num py-3 pr-2 text-mist">
-                              {r.waitingHours === null ? '—' : `${r.waitingHours} 小时`}
-                            </td>
+                            <td className="num py-3 pr-2 text-mist">{waitText(r)}</td>
                             <td className="truncate py-3 pr-2 text-mist">{r.interviewers.join('、')}</td>
                             <td className="py-3 pr-3">
-                              {r.submittedOnTime === null ? (
-                                <span className="text-mist-dim">等待提交</span>
-                              ) : r.submittedOnTime ? (
-                                <Badge tone="ok">24 小时内</Badge>
-                              ) : (
-                                <Badge tone="bad">超过 24 小时</Badge>
-                              )}
+                              <OnTime value={r.submittedOnTime} />
                             </td>
                           </tr>
                         );
@@ -318,6 +356,7 @@ export function BoardScreen({
                     </tbody>
                   </table>
                 </div>
+                </>
               )}
             </Panel>
 
@@ -346,7 +385,7 @@ export function BoardScreen({
                             {REMINDER_STATUS_LABEL[reminder.status]}
                           </Badge>
                         </span>
-                        <span className="w-full text-[11px] text-mist-dim">
+                        <span className="w-full text-[12px] text-mist-dim">
                           {reminder.status === 'sent' && reminder.sentAt
                             ? `已于 ${fmtTime(reminder.sentAt)} 发出`
                             : `计划 ${fmtTime(reminder.dueAt)} 发出`}

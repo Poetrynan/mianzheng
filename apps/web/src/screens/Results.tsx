@@ -3,7 +3,6 @@ import { AlertTriangle, ArrowRight, ChevronDown, Hexagon, Users } from 'lucide-r
 import { api } from '../api/client';
 import type { CandidateResultCell, CandidateResultRow, CandidateResults } from '../api/types';
 import { useLoader, useSession } from '../session';
-import { DimensionRadar } from '../Radar';
 import {
   Badge,
   Btn,
@@ -32,6 +31,53 @@ function fmtClock(ms: number): string {
 function scoreBadge(cell: CandidateResultCell) {
   if (cell.level === null) return <Badge tone="idle">没评</Badge>;
   return <Badge tone={LEVEL_TONE[cell.level] ?? 'idle'}>{SCORE_LABEL[cell.level]}</Badge>;
+}
+
+const LEVEL_STEPS: Record<string, number> = { low: 1, medium: 2, high: 3 };
+const LEVEL_FILL: Record<string, string> = { high: 'bg-ok', medium: 'bg-warn', low: 'bg-bad' };
+
+/**
+ * 每一维一行三格：格数是终评高低，颜色是同一套语义色；没挂原话的格子只描边不填色，没评的整行虚线。
+ * 以前用雷达图：只评了几维时形状会塌向中心，看起来像「很差」，其实只是「还没评」。
+ */
+function DimensionBars({ cells, caption }: { cells: CandidateResultCell[]; caption: string }) {
+  return (
+    <figure className="w-full">
+      <figcaption className="sr-only">{caption} 各考察维度的终评</figcaption>
+      <ul className="grid gap-2.5">
+        {cells.map((cell) => {
+          const steps = cell.level ? LEVEL_STEPS[cell.level] ?? 0 : 0;
+          const backed = cell.evidenceCount > 0;
+          return (
+            <li key={cell.dimensionId} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1">
+              <span className="text-[12px] leading-snug text-paper">{cell.dimensionName}</span>
+              <span className={cx('text-[12px]', cell.level ? LEVEL_TEXT[cell.level] : 'text-mist-dim')}>
+                {cell.level ? SCORE_LABEL[cell.level] : '没评'}
+                {cell.level && !backed ? <span className="ml-1 text-tint-warn">· 没挂原话</span> : null}
+              </span>
+              <span className="col-span-2 grid grid-cols-3 gap-1" aria-hidden>
+                {[1, 2, 3].map((i) => (
+                  <span
+                    key={i}
+                    className={cx(
+                      'h-1.5 rounded-full',
+                      cell.level === null
+                        ? 'border border-dashed border-line'
+                        : i <= steps
+                          ? backed
+                            ? LEVEL_FILL[cell.level]
+                            : 'border border-warn/70'
+                          : 'bg-raise',
+                    )}
+                  />
+                ))}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </figure>
+  );
 }
 
 /** 缺口有两种：这一维压根没评，和评了却一句原话都没挂。混成一句「还空着」会把前者藏起来。 */
@@ -171,11 +217,11 @@ function CompareTable({
       className="min-w-0"
     >
       <div className="-mx-1 min-w-0 overflow-x-auto px-1 pb-1">
-        <table className="w-full min-w-[620px] border-separate border-spacing-0 text-left">
+        <table className="w-full min-w-[540px] border-separate border-spacing-0 text-left">
           <caption className="sr-only">这个岗位下每个候选人各考察维度的结果，以及还缺什么</caption>
           <thead>
             <tr>
-              <th scope="col" className="w-[34%] border-b border-line-soft pb-2 pr-3 text-[11px] font-medium text-mist-dim">
+              <th scope="col" className="sticky left-0 z-[1] w-[34%] border-b border-line-soft bg-[var(--panel-bg)] pb-2 pr-3 text-[12px] font-medium text-mist-dim">
                 考察维度
               </th>
               {rows.map((row) => {
@@ -193,9 +239,9 @@ function CompareTable({
                     >
                       <span className="text-[13px] font-medium text-paper">{row.name}</span>
                       {row.submittedRounds === 0 ? (
-                        <span className="text-[11px] text-mist-dim">还没交</span>
+                        <span className="text-[12px] text-mist-dim">还没交</span>
                       ) : (
-                        <span className="text-[11px] text-mist-dim">{row.submittedRounds} 轮已交</span>
+                        <span className="text-[12px] text-mist-dim">{row.submittedRounds} 轮已交</span>
                       )}
                     </button>
                   </th>
@@ -206,7 +252,7 @@ function CompareTable({
           <tbody>
             {dims.map((dim) => (
               <tr key={dim.id}>
-                <th scope="row" className="border-b border-line-soft py-2.5 pr-3 align-top text-[12px] font-normal leading-snug text-mist">
+                <th scope="row" className="sticky left-0 z-[1] border-b border-line-soft bg-[var(--panel-bg)] py-2.5 pr-3 align-top text-[12px] font-normal leading-snug text-mist">
                   {dim.name}
                 </th>
                 {rows.map((row) => {
@@ -219,9 +265,9 @@ function CompareTable({
                         <span className={LEVEL_TEXT[cell.level] ?? 'text-paper'}>
                           {SCORE_LABEL[cell.level]}
                           {cell.evidenceCount === 0 ? (
-                            <span className="mt-0.5 block text-[11px] text-tint-warn">没挂原话</span>
+                            <span className="mt-0.5 block text-[12px] text-tint-warn">没挂原话</span>
                           ) : (
-                            <span className="mt-0.5 block text-[11px] text-mist-dim">{cell.evidenceCount} 段原话</span>
+                            <span className="mt-0.5 block text-[12px] text-mist-dim">{cell.evidenceCount} 段原话</span>
                           )}
                         </span>
                       )}
@@ -231,7 +277,7 @@ function CompareTable({
               </tr>
             ))}
             <tr>
-              <th scope="row" className="py-2.5 pr-3 text-[12px] font-medium text-paper">
+              <th scope="row" className="sticky left-0 z-[1] bg-[var(--panel-bg)] py-2.5 pr-3 text-[12px] font-medium text-paper">
                 还缺
               </th>
               {rows.map((row) => (
@@ -243,7 +289,7 @@ function CompareTable({
           </tbody>
         </table>
       </div>
-      <p className="mt-2 text-[11px] text-mist-dim sm:hidden">表格可以左右滑动。</p>
+      <p className="mt-2 text-[12px] text-mist-dim sm:hidden">左右滑动看其他候选人，维度名会固定在左边。</p>
       {missing.length > 0 ? (
         <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-mist">
           <span className="inline-flex items-center gap-1 text-tint-warn">
@@ -253,7 +299,7 @@ function CompareTable({
           {missing.map((row) => (
             <span key={row.candidateId} className="text-paper">
               {row.name}
-              <span className="ml-1 text-[11px] text-mist-dim">
+              <span className="ml-1 text-[12px] text-mist-dim">
                 {row.upcomingAt ? `面试排在 ${fmtTime(row.upcomingAt)}` : '还没有排面试'}
               </span>
             </span>
@@ -269,7 +315,7 @@ function Snapshot({ row }: { row: CandidateResultRow }) {
   const missingCells = row.cells.filter((c) => c.level === null || c.evidenceCount === 0);
   return (
     <Panel
-      title={`${row.name} · 维度矩阵`}
+      title={`${row.name} · 各维度终评`}
       subtitle={
         row.submittedRounds === 0
           ? `还没有已提交的面评${row.upcomingAt ? `，面试排在 ${fmtTime(row.upcomingAt)}` : ''}。`
@@ -280,9 +326,9 @@ function Snapshot({ row }: { row: CandidateResultRow }) {
       className="min-w-0"
     >
       <div className="flex flex-col items-center gap-3">
-        <DimensionRadar cells={row.cells} caption={row.name} />
+        <DimensionBars cells={row.cells} caption={row.name} />
         <div className="w-full rounded-xl border border-line-soft px-3 py-2.5">
-          <p className="text-[11px] text-mist-dim">还缺哪几维</p>
+          <p className="text-[12px] text-mist-dim">还缺哪几维</p>
           {row.submittedRounds === 0 ? (
             <p className="mt-1 text-[12px] text-mist">还没有面评，等面试官提交后再看。</p>
           ) : missingCells.length === 0 ? (
@@ -292,7 +338,7 @@ function Snapshot({ row }: { row: CandidateResultRow }) {
               {missingCells.map((cell) => (
                 <li key={cell.dimensionId} className="flex flex-wrap items-baseline justify-between gap-2 text-[12px]">
                   <span className="text-paper">{cell.dimensionName}</span>
-                  <span className="text-[11px] text-tint-warn">{cell.level === null ? '没终评' : '没挂原话'}</span>
+                  <span className="text-[12px] text-tint-warn">{cell.level === null ? '没终评' : '没挂原话'}</span>
                 </li>
               ))}
             </ul>
@@ -325,7 +371,7 @@ function CandidateDetail({ row, onOpenDraft }: { row: CandidateResultRow; onOpen
                   className="press flex w-full flex-col gap-1 px-3 py-2.5 text-left transition hover:bg-raise-soft"
                 >
                   <span className="flex w-full flex-wrap items-center gap-2">
-                    <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-paper">{cell.dimensionName}</span>
+                    <span className="min-w-0 flex-1 break-words text-[13px] font-medium text-paper">{cell.dimensionName}</span>
                     {scoreBadge(cell)}
                     {cell.level !== null && cell.evidenceCount > 0 ? (
                       <span className="text-[12px] text-mist-dim">{cell.evidenceCount} 句原话</span>
@@ -346,11 +392,11 @@ function CandidateDetail({ row, onOpenDraft }: { row: CandidateResultRow; onOpen
                   </span>
                   {cell.summary ? <span className="block text-[12px] leading-relaxed text-mist">{cell.summary}</span> : null}
                   {cell.round > 0 ? (
-                    <span className="block text-[11px] text-mist-dim">
+                    <span className="block text-[12px] text-mist-dim">
                       第 {cell.round} 轮 · {cell.interviewerName} 提交 · {fmtTime(cell.submittedAt)}
                     </span>
                   ) : (
-                    <span className="block text-[11px] text-tint-warn">这一维在所有已提交的面评里都是空的</span>
+                    <span className="block text-[12px] text-tint-warn">这一维在所有已提交的面评里都是空的</span>
                   )}
                 </button>
                 {open ? (
@@ -360,7 +406,7 @@ function CandidateDetail({ row, onOpenDraft }: { row: CandidateResultRow; onOpen
                         {cell.evidence.map((item, index) => (
                           <li key={`${cell.dimensionId}-${index}`} className="border-l-2 border-human/40 pl-2.5">
                             <p className="text-[12px] leading-relaxed text-paper">「{item.quote}」</p>
-                            <p className="mt-0.5 text-[11px] text-mist-dim">转写 {fmtClock(item.startMs)}</p>
+                            <p className="mt-0.5 text-[12px] text-mist-dim">转写 {fmtClock(item.startMs)}</p>
                           </li>
                         ))}
                       </ul>
@@ -396,7 +442,7 @@ function CandidateDetail({ row, onOpenDraft }: { row: CandidateResultRow; onOpen
                   看这一轮的面评
                 </Btn>
               ))}
-            {row.lastSubmittedAt ? <span className="text-[11px] text-mist-dim">最近一次提交：{fmtTime(row.lastSubmittedAt)}</span> : null}
+            {row.lastSubmittedAt ? <span className="text-[12px] text-mist-dim">最近一次提交：{fmtTime(row.lastSubmittedAt)}</span> : null}
           </div>
         </div>
       </div>

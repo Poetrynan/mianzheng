@@ -375,7 +375,7 @@ export function ComplianceScreen() {
                       <Badge tone={a.actorType === 'ai' ? 'ai' : a.actorType === 'system' ? 'idle' : 'human'}>
                         {ACTOR_LABEL[a.actorType]}
                       </Badge>
-                      <span className="num text-[11px] text-mist-dim">{fmtTime(a.at)}</span>
+                      <span className="num text-[12px] text-mist-dim">{fmtTime(a.at)}</span>
                     </div>
                   </div>
                 ))}

@@ -176,7 +176,7 @@ export class MockLlmProvider implements LlmProvider {
         return {
           dimensionId: dim.id,
           mark: 'needs_probe',
-          rationale: `简历解析不完整，无法判断「${dim.name}」，该维度需要赛中重点考察`,
+          rationale: `简历解析不完整，看不出「${dim.name}」，面试中重点考察`,
         };
       }
       let mark: AlignmentMark;
@@ -185,10 +185,10 @@ export class MockLlmProvider implements LlmProvider {
       else mark = 'weak';
       const rationale =
         mark === 'matched'
-          ? `简历中出现 ${hits.join('、')}，方向与「${dim.name}」的正向证据一致`
+          ? `简历提到${hits.map((h) => `「${h}」`).join('、')}，和「${dim.name}」的要求方向一致`
           : mark === 'needs_probe'
-            ? `仅出现 ${hits[0] ?? '无'}，不足以判断「${dim.name}」，该维度需要赛中重点考察`
-            : `简历中未见「${dim.name}」相关证据，该维度需要赛中重点考察`;
+            ? `简历只提到「${hits[0] ?? '无'}」，还判断不了「${dim.name}」，面试中重点考察`
+            : `简历里看不到「${dim.name}」相关经历，面试中重点考察`;
       return { dimensionId: dim.id, mark, rationale };
     });
 

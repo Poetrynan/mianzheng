@@ -877,7 +877,7 @@ export function Segmented<T extends string>({
             {option.badge !== undefined ? (
               <span
                 className={cx(
-                  'num rounded-full px-1.5 py-0.2 text-[11px]',
+                  'num rounded-full px-1.5 py-0.2 text-[12px]',
                   on ? 'bg-brand/10 text-tint-brand' : 'bg-raise-hi text-mist-dim',
                 )}
               >
@@ -921,7 +921,7 @@ export function WorkflowStepper({
         const done = s.done ?? s.index < current;
         return (
           <div key={s.index} className="flex items-center gap-2">
-            {s.index > 1 ? <span className="text-[11px] text-mist-dim">→</span> : null}
+            {s.index > 1 ? <span className="text-[12px] text-mist-dim">→</span> : null}
             <button
               type="button"
               disabled={!onSelect}
@@ -937,7 +937,7 @@ export function WorkflowStepper({
             >
               <span
                 className={cx(
-                  'num grid h-5 w-5 shrink-0 place-items-center rounded-full text-[11px] font-semibold',
+                  'num grid h-5 w-5 shrink-0 place-items-center rounded-full text-[12px] font-semibold',
                   on
                     ? 'bg-brand text-on-brand'
                     : done

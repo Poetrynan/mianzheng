@@ -69,7 +69,8 @@ const SAMPLE_RESUMES = {
   ].join('\n'),
 };
 
-const SAMPLE_BTN = 'press rounded-md px-1.5 py-0.5 text-[12px] text-mist hover:bg-raise hover:text-paper';
+/** 看起来要像按钮：有边框、有手感，而不是一个说不清的灰字。 */
+const SAMPLE_BTN = 'press rounded-lg border border-line-soft bg-raise-soft px-2.5 py-1 text-[12px] text-paper hover:border-brand/40 hover:text-brand';
 
 type NoteKey = 'job' | 'candidate' | 'schedule';
 type View = 'job' | 'candidate' | 'schedule';
@@ -275,8 +276,7 @@ export function SetupScreen({ onPickInterview }: { onPickInterview: (id: string)
           <Panel title="新建岗位" subtitle="写清这个岗位要解决什么问题，后面的访谈会从这里开始。" icon={Plus}>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-[12px] text-mist-dim">不想从零写，可以先用一份示例</span>
-              <div className="flex flex-wrap items-center gap-1">
-                <span className="text-[11px] text-mist-dim">示例</span>
+              <div className="flex flex-wrap items-center gap-1.5">
                 <button
                   type="button"
                   className={SAMPLE_BTN}
@@ -400,7 +400,7 @@ export function SetupScreen({ onPickInterview }: { onPickInterview: (id: string)
                     >
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-[13px] font-medium text-paper">{j.title}</span>
-                        <span className="mt-0.5 block text-[11px] text-mist-dim">
+                        <span className="mt-0.5 block text-[12px] text-mist-dim">
                           {[j.level, j.teamSize ? `${j.teamSize} 人` : null, `${count} 位候选人`]
                             .filter(Boolean)
                             .join(' · ')}
@@ -430,7 +430,7 @@ export function SetupScreen({ onPickInterview }: { onPickInterview: (id: string)
                 <Field label="姓名" value={candidateName} onChange={setCandidateName} placeholder="例如：张伟" />
               </div>
               <div className="flex items-center gap-1 pb-2">
-                <span className="text-[11px] text-mist-dim">示例</span>
+                <span className="text-[12px] text-mist-dim">填入示例简历：</span>
                 <button
                   type="button"
                   className={SAMPLE_BTN}
@@ -567,14 +567,14 @@ export function SetupScreen({ onPickInterview }: { onPickInterview: (id: string)
           <Panel title="排期面试" subtitle="面试结束后自动进入面评交付清单。" icon={Calendar}>
             <div className="flex items-center justify-between gap-2">
               <Subhead as={4}>排期对象</Subhead>
-              {pickedCandidate ? <span className="text-[11px] text-mist-dim">第 {nextRound} 轮 · 视频面</span> : null}
+              {pickedCandidate ? <span className="text-[12px] text-mist-dim">第 {nextRound} 轮 · 视频面</span> : null}
             </div>
             {pickedCandidate ? (
               <div className="mt-2 flex items-center gap-2 rounded-lg bg-raise-soft px-3 py-2">
                 <User className="h-3.5 w-3.5 shrink-0 text-mist-dim" strokeWidth={1.9} aria-hidden />
                 <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-paper">{pickedCandidate.name}</span>
                 {pickedCandidate.email ? (
-                  <span className="min-w-0 max-w-[55%] shrink-0 truncate text-[11px] text-mist-dim">{pickedCandidate.email}</span>
+                  <span className="min-w-0 max-w-[55%] shrink-0 truncate text-[12px] text-mist-dim">{pickedCandidate.email}</span>
                 ) : null}
               </div>
             ) : (
@@ -589,7 +589,7 @@ export function SetupScreen({ onPickInterview }: { onPickInterview: (id: string)
 
             <div className="mt-4 flex items-center justify-between gap-2">
               <Subhead as={4}>面试官</Subhead>
-              <span className="text-[11px] text-mist-dim">可多选</span>
+              <span className="text-[12px] text-mist-dim">可多选</span>
             </div>
             <div className="mt-1.5 flex flex-col gap-0.5">
               {interviewers.map((u) => {
@@ -621,7 +621,7 @@ export function SetupScreen({ onPickInterview }: { onPickInterview: (id: string)
                       {u.name}
                     </span>
                     {u.role === 'hiring_manager' ? (
-                      <span className="shrink-0 text-[11px] text-mist-dim">{ROLE_LABEL[u.role]}</span>
+                      <span className="shrink-0 text-[12px] text-mist-dim">{ROLE_LABEL[u.role]}</span>
                     ) : null}
                   </button>
                 );

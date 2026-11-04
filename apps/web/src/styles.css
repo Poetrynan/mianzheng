@@ -418,6 +418,17 @@
     transform: scale(0.985);
   }
 
+  /* 手机上手指比鼠标粗：所有可点的控件和输入框至少 44px 高（WCAG 2.5.5 / 平台触控规范）。 */
+  @media (max-width: 767px) {
+    .press,
+    .field-base {
+      min-height: 44px;
+    }
+    .press {
+      align-items: center;
+    }
+  }
+
   /* A slot whose width is the widest of its candidates: swapping one control for another cannot move a neighbour. */
   .lock-slot {
     display: grid;

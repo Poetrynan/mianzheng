@@ -345,11 +345,11 @@ export function AuthScreen() {
                             className="press flex w-full flex-wrap items-baseline justify-between gap-2 rounded-lg px-2 py-2 text-left transition hover:bg-raise disabled:opacity-60"
                           >
                             <span className="text-[12px] text-paper">{account.label}</span>
-                            <span className="text-[11px] text-mist-dim">{account.email}</span>
+                            <span className="text-[12px] text-mist-dim">{account.email}</span>
                           </button>
                         </li>
                       ))}
-                      <li className="px-2 pt-1 text-[11px] leading-relaxed text-mist-dim">
+                      <li className="px-2 pt-1 text-[12px] leading-relaxed text-mist-dim">
                         点一个角色自动填好，再点「登录」。密码都是 {DEMO_PASSWORD}。共享演示数据为虚构，请勿上传真实简历或录音。
                       </li>
                     </ul>

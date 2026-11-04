@@ -85,7 +85,7 @@ export function TeamScreen() {
                   <div className="flex items-center gap-2">
                     <p className="truncate text-[14px] font-medium text-paper">{u.name}</p>
                     {u.id === me?.id ? (
-                      <Badge tone="idle" className="px-1.5 py-0 text-[11px]">
+                      <Badge tone="idle" className="px-1.5 py-0 text-[12px]">
                         我
                       </Badge>
                     ) : null}
@@ -141,7 +141,7 @@ function AccountSummary() {
       <div className="min-w-0 flex-1">
         <p className="truncate text-[14px] font-medium text-paper">{me.name}</p>
         <p className="mt-0.5 truncate text-[12px] text-mist-dim">{me.email ?? '未绑定邮箱'}</p>
-        <p className="mt-0.5 truncate text-[11px] text-mist-dim">{org?.name}</p>
+        <p className="mt-0.5 truncate text-[12px] text-mist-dim">{org?.name}</p>
       </div>
       <Badge tone={ROLE_TONE[me.role]}>{ROLE_LABEL[me.role]}</Badge>
     </div>

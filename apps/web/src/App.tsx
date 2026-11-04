@@ -137,6 +137,10 @@ function Workspace() {
   const [tab, setTab] = useState<Tab>('today');
   useEffect(() => { setTab('today'); }, [me?.id]);
   useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }); }, [tab]);
+  const mobileNavRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    mobileNavRef.current?.querySelector('[aria-current="page"]')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }, [tab]);
   const [standardJobId, setStandardJobId] = useState('');
   const [interviewId, setInterviewId] = useState<string>(readActiveInterview);
   const orgId = org?.id ?? '';
@@ -248,14 +252,14 @@ function Workspace() {
           </span>
           <span className="min-w-0 flex-1">
             <span className="block truncate text-[13px] font-medium text-paper">{me.name}</span>
-            <span className="block truncate text-[11px] text-mist-dim">{ROLE_LABEL[me.role]}</span>
+            <span className="block truncate text-[12px] text-mist-dim">{ROLE_LABEL[me.role]}</span>
           </span>
         </button>
 
         <nav className="mt-4 flex flex-col gap-4">
           {GROUPS.map((group) => (
             <div key={group || 'home'}>
-              {group ? <p className="px-2 pb-1 text-[11px] font-medium text-mist-dim">{group}</p> : null}
+              {group ? <p className="px-2 pb-1 text-[12px] font-medium text-mist-dim">{group}</p> : null}
               <div className="flex flex-col gap-0.5">
                 {NAV.filter((n) => n.group === group).map((item) => {
                   const on = tab === item.tab;
@@ -335,25 +339,32 @@ function Workspace() {
           </div>
         </header>
 
-        <nav className="flex gap-1 overflow-x-auto border-b border-line-soft px-3 py-2 lg:hidden [scrollbar-gutter:stable]">
-          {NAV.map((item) => {
-            const on = tab === item.tab;
-            return (
-              <button
-                key={item.tab}
-                type="button"
-                onClick={() => openTab(item.tab)}
-                aria-current={on ? 'page' : undefined}
-                className={cx(
-                  'workspace-nav press shrink-0 rounded-lg px-3 py-2 text-[12px]',
-                  on ? 'font-semibold' : 'text-mist hover:bg-raise-soft',
-                )}
-              >
-                {item.label}
-              </button>
-            );
-          })}
-        </nav>
+        {/* 手机导航：组之间留一道分隔，右侧渐隐提示还能往右滑，当前页总会滚进视野。 */}
+        <div className="relative border-b border-line-soft lg:hidden">
+          <nav ref={mobileNavRef} aria-label="页面导航" className="flex items-center gap-1 overflow-x-auto px-3 py-2 [scrollbar-width:none]">
+            {NAV.map((item, i) => {
+              const on = tab === item.tab;
+              const newGroup = i > 0 && NAV[i - 1]!.group !== item.group;
+              return (
+                <span key={item.tab} className="flex shrink-0 items-center gap-1">
+                  {newGroup ? <span className="mx-1 h-4 w-px bg-line" aria-hidden /> : null}
+                  <button
+                    type="button"
+                    onClick={() => openTab(item.tab)}
+                    aria-current={on ? 'page' : undefined}
+                    className={cx(
+                      'workspace-nav press shrink-0 rounded-lg px-3 py-2 text-[13px]',
+                      on ? 'font-semibold' : 'text-mist hover:bg-raise-soft',
+                    )}
+                  >
+                    {item.label}
+                  </button>
+                </span>
+              );
+            })}
+          </nav>
+          <span className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[var(--color-ink-950)] to-transparent" aria-hidden />
+        </div>
 
         <main id="main" tabIndex={-1} className="mx-auto flex max-w-[1180px] flex-col gap-4 px-4 py-5 sm:px-6">
           {tab === 'today' ? (
@@ -414,7 +425,8 @@ function Workspace() {
 
         <div className="flex items-center justify-between gap-3 border-t border-line-soft px-4 py-3 lg:hidden">
           <p className="min-w-0 truncate text-[12px] text-mist-dim">
-            {me.name} · {ROLE_LABEL[me.role]}
+            {/* 演示账号的名字里已经带了角色（「王 面试官」），别再重复一遍。 */}
+            {me.name.includes(ROLE_LABEL[me.role]) ? me.name : `${me.name} · ${ROLE_LABEL[me.role]}`}
           </p>
           <Btn variant="quiet" icon={LogOut} className="shrink-0 px-2 py-1 text-[12px]" onClick={() => void logout()}>
             退出登录

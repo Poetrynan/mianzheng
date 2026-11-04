@@ -92,7 +92,7 @@ export function ResumeInput({ value, onChange, onNameSuggested, onBusyChange, di
               {busyName ? <Btn key="cancel-read" variant="quiet" onClick={() => controller.current?.abort()}>取消读取</Btn> : null}
             </div>
           </div>
-          <p className="mt-2 text-[11px] leading-relaxed text-mist-dim">在浏览器中读取原件，仅在你添加候选人时保存提取的文字。扫描图片型 PDF 请先转为可选中文字的文档。</p>
+          <p className="mt-2 text-[12px] leading-relaxed text-mist-dim">在浏览器中读取原件，仅在你添加候选人时保存提取的文字。扫描图片型 PDF 请先转为可选中文字的文档。</p>
           {fileName && value ? (
             <div className="mt-3 rounded-xl border border-line bg-raise-soft p-3">
               <div className="flex items-start gap-2">

@@ -280,7 +280,7 @@ export function DraftScreen({
                 )}
               >
                 {nameOf(x.interviewerId)}
-                <span className="ml-1.5 text-[11px] text-mist-dim">{DRAFT_LABEL[x.status]}</span>
+                <span className="ml-1.5 text-[12px] text-mist-dim">{DRAFT_LABEL[x.status]}</span>
               </button>
             ))}
           </div>
@@ -334,7 +334,7 @@ export function DraftScreen({
             {d.draft.rejectedClaims.map((c, i) => (
               <li key={`${c.claim}-${i}`} className="flex flex-wrap items-baseline justify-between gap-2 text-[12px]">
                 <span className="min-w-0 text-mist">{c.claim}</span>
-                <span className="text-[11px] text-mist-dim">{CLAIM_REASON_LABEL[c.reason]}</span>
+                <span className="text-[12px] text-mist-dim">{CLAIM_REASON_LABEL[c.reason]}</span>
               </li>
             ))}
           </ul>
@@ -378,7 +378,7 @@ export function DraftScreen({
                         : 'border-line/60 bg-raise-soft text-mist hover:text-paper',
                     )}
                   >
-                    <span className="num text-[11px] text-mist-dim">{idx + 1}</span>
+                    <span className="num text-[12px] text-mist-dim">{idx + 1}</span>
                     <span className="max-w-[150px] truncate">{check.dimensionName}</span>
                     <span
                       aria-hidden
@@ -569,7 +569,7 @@ export function DraftScreen({
                                 <p key={seg.segmentId} ref={selected ? sourceRef : undefined} tabIndex={-1}
                                   className={cx('mb-2 rounded-lg border p-2 text-[13px] leading-relaxed',
                                     selected ? 'border-human/40 bg-human/10' : 'border-transparent')}>
-                                  <span className="mb-1 flex flex-wrap items-center gap-2 text-[11px] text-mist-dim">
+                                  <span className="mb-1 flex flex-wrap items-center gap-2 text-[12px] text-mist-dim">
                                     <span className="num">{clock(seg.startMs)}</span>
                                     <span>{seg.speaker === 'candidate' ? '候选人' : seg.speaker === 'interviewer' ? '面试官' : '未标注说话人'}</span>
                                     {selected ? <span className="text-tint-human">当前引用</span> : null}

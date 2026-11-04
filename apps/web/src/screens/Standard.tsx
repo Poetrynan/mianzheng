@@ -461,7 +461,7 @@ export function StandardScreen({ focusJobId = '' }: { focusJobId?: string }) {
                         className="press min-w-0 flex-1 rounded px-1 py-0.5 text-left"
                       >
                         <span className="block truncate text-[13px] font-medium text-paper">{e.name}</span>
-                        <span className="mt-0.5 block text-[11px] text-mist-dim">
+                        <span className="mt-0.5 block text-[12px] text-mist-dim">
                           {toLines(e.positiveEvidence).length} 条值得看 · {toLines(e.redFlags).length} 条警惕信号 ·{' '}
                           {toLines(e.probes).length} 条追问
                         </span>
@@ -575,7 +575,20 @@ export function StandardScreen({ focusJobId = '' }: { focusJobId?: string }) {
             </Badge>
           </div>
 
-          {standard.dimensions.length > 0 ? (
+          {standard.dimensions.length > 0 && standard.dimensions.every((d) => d.confirmedBy) ? (
+            // 全部确认后，七个一模一样的「已确认」没有信息量；改成一排维度名，留出视线给结论。
+            <div className="mt-4 border-t border-line-soft pt-3">
+              <p className="text-[12px] text-mist-dim">{standard.dimensions.length} 个考察维度，均已逐项确认</p>
+              <ul className="mt-2 flex flex-wrap gap-1.5">
+                {standard.dimensions.map((dim, i) => (
+                  <li key={dim.id} className="rounded-lg border border-line-soft bg-raise-soft px-2.5 py-1 text-[12px] text-paper">
+                    <span className="num mr-1 text-mist-dim">{i + 1}</span>
+                    {dim.name}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : standard.dimensions.length > 0 ? (
             <ul className="mt-4 flex flex-col gap-1.5 border-t border-line-soft pt-3">
               {standard.dimensions.map((dim, i) => (
                 <li key={dim.id} className="flex items-center justify-between gap-2 text-[12px]">

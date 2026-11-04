@@ -8,6 +8,7 @@ import {
   HelpCircle,
   History,
   Plus,
+  RefreshCw,
   ShieldAlert,
   Sparkles,
 } from 'lucide-react';
@@ -30,7 +31,6 @@ import {
   Select,
   Subhead,
   fmtTime,
-  useBottomFade,
 } from '../ui';
 
 const MARK: Record<AlignmentMark, { label: string; tone: 'ok' | 'warn' | 'bad' }> = {
@@ -137,8 +137,10 @@ export function PrepScreen({
     [ledger.data?.entries],
   );
 
-  const { ref: ledgerRef, more: ledgerMoreBelow, sync: syncLedgerFade } = useBottomFade<HTMLDivElement>();
-  const { ref: questionsRef, more: questionsMoreBelow, sync: syncQuestionsFade } = useBottomFade<HTMLDivElement>();
+  /** 账本默认只露出最需要关注的前几项，其余点开再看；不再用页内滚动框，避免双层滚动把内容藏起来。 */
+  const LEDGER_PREVIEW = 4;
+  const [ledgerOpen, setLedgerOpen] = useState(false);
+  const shownLedger = ledgerOpen ? ledgerEntries : ledgerEntries.slice(0, LEDGER_PREVIEW);
 
   if (!interviewId) {
     const list = interviews.data ?? [];
@@ -172,11 +174,14 @@ export function PrepScreen({
         right={
           <div className="flex items-center gap-2">
             <Btn
-              variant="primary"
+              variant={data ? undefined : 'primary'}
+              icon={data ? RefreshCw : undefined}
               busy={pending === '生成'}
               busyLabel="生成中…"
               disabled={pending !== null}
-              onClick={() =>
+              onClick={() => {
+                // 重新生成会覆盖当前这一页，先确认；第一次生成不用问。
+                if (data && !window.confirm('重新生成会替换当前这一页，你自己加的问题也会被清掉。继续吗？')) return;
                 void guard(
                   '生成',
                   async () => {
@@ -185,13 +190,14 @@ export function PrepScreen({
                     runs.reload();
                   },
                   '已按最新简历生成。',
-                )
-              }
+                );
+              }}
             >
               {data ? '重新生成' : '生成一页纸'}
             </Btn>
             {data ? (
               <Btn
+                variant="primary"
                 icon={Copy}
                 onClick={() => {
                   const lines = [
@@ -278,7 +284,7 @@ export function PrepScreen({
               <ul className="ml-1 mt-2 space-y-1.5 text-[13px] leading-relaxed text-paper">
                 {data.crux.map((c, i) => (
                   <li key={c} className="flex items-start gap-2">
-                    <span className="num mt-0.5 shrink-0 text-[11px] text-mist-dim">{i + 1}</span>
+                    <span className="num mt-0.5 shrink-0 text-[12px] text-mist-dim">{i + 1}</span>
                     <span>{c}</span>
                   </li>
                 ))}
@@ -365,13 +371,9 @@ export function PrepScreen({
           ) : ledgerEntries.length === 0 ? (
             <Empty text="还没有提交过的面评，这一场从零开始。" />
           ) : (
-            <div className="relative">
-              <div
-                ref={ledgerRef}
-                onScroll={syncLedgerFade}
-                className="flex max-h-[280px] flex-col overflow-y-auto pr-1 [scrollbar-gutter:stable]"
-              >
-                {ledgerEntries.map((entry) => {
+            <div>
+              <div className="flex flex-col">
+                {shownLedger.map((entry) => {
                   const cfg = LEDGER[entry.status];
                   const open = entry.status === 'missing' || entry.status === 'unscored';
                   return (
@@ -388,7 +390,16 @@ export function PrepScreen({
                   );
                 })}
               </div>
-              {ledgerMoreBelow ? <div className="fade-below" aria-hidden /> : null}
+              {ledgerEntries.length > LEDGER_PREVIEW ? (
+                <button
+                  type="button"
+                  onClick={() => setLedgerOpen((v) => !v)}
+                  aria-expanded={ledgerOpen}
+                  className="press mt-2 w-full rounded-lg border border-line-soft py-2 text-[12px] text-mist hover:border-line-hi hover:text-paper"
+                >
+                  {ledgerOpen ? '收起' : `展开其余 ${ledgerEntries.length - LEDGER_PREVIEW} 项`}
+                </button>
+              ) : null}
             </div>
           )}
         </Panel>
@@ -399,12 +410,8 @@ export function PrepScreen({
         icon={HelpCircle}
         right={<Badge tone="idle">{data?.questions.length ?? 0} 个问题</Badge>}
       >
-        <div className="relative">
-          <div
-            ref={questionsRef}
-            onScroll={syncQuestionsFade}
-            className="flex max-h-[460px] flex-col gap-2 overflow-y-auto pr-1 [scrollbar-gutter:stable]"
-          >
+        <div>
+          <div className="flex flex-col gap-2">
             {(data?.questions ?? []).length === 0 ? (
               <Empty text="生成一页纸后，这里会出现追问建议" />
             ) : null}
@@ -413,7 +420,7 @@ export function PrepScreen({
               <div key={q.id} className="inset p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-start gap-2">
-                    <span className="num mt-0.5 shrink-0 text-[11px] text-mist-dim">{idx + 1}</span>
+                    <span className="num mt-0.5 shrink-0 text-[12px] text-mist-dim">{idx + 1}</span>
                     <p className="text-[13px] font-medium leading-relaxed text-paper">{q.text}</p>
                   </div>
                   <Badge tone={q.source === 'interviewer' ? 'human' : q.source === 'ai' ? 'ai' : 'info'}>
@@ -445,7 +452,6 @@ export function PrepScreen({
               </div>
             ))}
           </div>
-          {questionsMoreBelow ? <div className="fade-below" aria-hidden /> : null}
         </div>
 
         <div className="mt-4 grid gap-3 border-t border-line-soft pt-4">
