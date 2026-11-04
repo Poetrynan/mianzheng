@@ -109,10 +109,74 @@ export interface EvaluationPlan {
   rationale: string;
 }
 
+/**
+ * One move the code says is legal right now. The model picks among these; it cannot invent a
+ * move, so budgets, quote verification and "only humans score" stay enforced by code.
+ */
+export interface NextStepOption {
+  id: string;
+  tool: string;
+  label: string;
+  detail: string | null;
+}
+
+export interface NextStepRequest {
+  phase: string;
+  goal: string;
+  /** The last few observable steps, oldest first, so the model sees what just happened. */
+  recent: Array<{ label: string; detail: string | null; ok: boolean }>;
+  options: NextStepOption[];
+}
+
+export interface NextStepChoice {
+  optionId: string;
+  /** One sentence the interviewer can read: why this move and not the others. */
+  reason: string;
+}
+
+/** A read-only tool the conversational agent may call, described for the model. */
+export interface AssistantToolSpec {
+  name: string;
+  description: string;
+  args: Record<string, string>;
+}
+
+export interface AssistantObservation {
+  tool: string;
+  args: Record<string, unknown>;
+  ok: boolean;
+  /** Compact JSON of what the tool returned (already truncated by the caller). */
+  result: unknown;
+}
+
+export interface AssistantStepRequest {
+  message: string;
+  history: Array<{ role: 'user' | 'assistant'; text: string }>;
+  context: { role: string; focusInterviewId: string | null; focusLabel: string | null };
+  tools: AssistantToolSpec[];
+  observations: AssistantObservation[];
+  stepsLeft: number;
+}
+
+export type AssistantProposalKind = 'run_prep' | 'open_prep' | 'open_draft' | 'open_board' | 'open_results';
+
+export interface AssistantProposalDraft {
+  kind: AssistantProposalKind;
+  interviewId?: string | null;
+}
+
+export type AssistantStepDecision =
+  | { type: 'tool'; tool: string; args: Record<string, unknown>; thought: string }
+  | { type: 'answer'; text: string; proposals: AssistantProposalDraft[] };
+
 export interface LlmProvider extends LlmInfo {
   extractStandard(req: StandardExtractionRequest): Promise<StandardExtractionResult>;
   buildPrepPack(req: PrepPackRequest): Promise<PrepPackResult>;
   draftEvaluation(req: EvaluationRequest): Promise<EvaluationResult>;
   /** Optional: when missing or failing, the agent falls back to the standard keyword plan. */
   planEvaluation?(req: EvaluationPlanRequest): Promise<EvaluationPlan>;
+  /** Optional: picks the next move among legal options. Missing or failing → the rule's default. */
+  chooseNextStep?(req: NextStepRequest): Promise<NextStepChoice>;
+  /** Optional: one turn of the conversational agent's plan → tool → observe loop. */
+  assistantStep?(req: AssistantStepRequest): Promise<AssistantStepDecision>;
 }

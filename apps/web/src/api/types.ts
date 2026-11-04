@@ -312,7 +312,26 @@ export interface FeedbackDraft {
   submittedAt: string | null;
 }
 
-export type AgentPhase = 'standard' | 'prep' | 'evaluation';
+export type AgentPhase = 'standard' | 'prep' | 'evaluation' | 'assistant';
+
+/** Who picked a move on the trace: a real model, the sample provider, or the code's default rule. */
+export interface AgentDecision {
+  by: 'model' | 'mock' | 'rule';
+  reason: string;
+  chosen: string;
+  considered: string[];
+}
+
+export interface AssistantProposal {
+  kind: 'run_prep' | 'open_prep' | 'open_draft' | 'open_board' | 'open_results';
+  interviewId: string | null;
+  label: string;
+}
+
+export interface AssistantTurn {
+  role: 'user' | 'assistant';
+  text: string;
+}
 export type AgentRunStatus = 'running' | 'awaiting_human' | 'completed' | 'stopped' | 'failed';
 export type AgentStepKind = 'plan' | 'read' | 'search' | 'draft' | 'verify' | 'ask' | 'remember' | 'answer' | 'stop';
 
@@ -360,6 +379,7 @@ export interface AgentResult {
   draftId?: string;
   gapDimensionIds?: string[];
   carryOverDimensionNames?: string[];
+  proposals?: AssistantProposal[];
 }
 
 export interface AgentRun {

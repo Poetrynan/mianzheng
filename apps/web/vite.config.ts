@@ -24,7 +24,8 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:8787',
+        // 可用 MIANYAN_API_TARGET 指到另一个后端（比如并行跑一套验证环境），默认还是本机 8787。
+        target: process.env.MIANYAN_API_TARGET ?? 'http://127.0.0.1:8787',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },

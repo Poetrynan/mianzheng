@@ -1,5 +1,9 @@
 import { z } from 'zod';
 import type {
+  AssistantStepDecision,
+  AssistantStepRequest,
+  NextStepChoice,
+  NextStepRequest,
   EvaluationPlan,
   EvaluationPlanRequest,
   EvaluationRequest,
@@ -285,6 +289,47 @@ const PlanSchema = z.preprocess(
   }),
 );
 
+const NextStepSchema = z.preprocess(
+  (value) => {
+    if (!value || typeof value !== 'object') return value;
+    const o = value as Record<string, unknown>;
+    return {
+      optionId: pick(o, ['optionId', 'option_id', 'choice', 'id', 'option']),
+      reason: pick(o, ['reason', 'why', 'rationale', 'thought']) ?? '',
+    };
+  },
+  z.object({ optionId: z.coerce.string().min(1), reason: z.string().default('') }),
+);
+
+const ProposalSchema = z.object({
+  kind: z.enum(['run_prep', 'open_prep', 'open_draft', 'open_board', 'open_results']),
+  interviewId: z.string().nullable().optional(),
+});
+
+const AssistantSchema = z.preprocess(
+  (value) => {
+    if (!value || typeof value !== 'object') return value;
+    const o = value as Record<string, unknown>;
+    const toolName = pick(o, ['tool', 'toolName', 'tool_name', 'action']);
+    const text = pick(o, ['text', 'answer', 'reply', 'final']);
+    const type = pick(o, ['type']) ?? (typeof toolName === 'string' && toolName && toolName !== 'answer' ? 'tool' : 'answer');
+    return type === 'tool'
+      ? { type, tool: toolName, args: pick(o, ['args', 'arguments', 'input', 'params']) ?? {}, thought: pick(o, ['thought', 'reason', 'why']) ?? '' }
+      : { type: 'answer', text: text ?? '', proposals: pick(o, ['proposals', 'suggestions', 'actions']) ?? [] };
+  },
+  z.discriminatedUnion('type', [
+    z.object({ type: z.literal('tool'), tool: z.string().min(1), args: z.record(z.string(), z.unknown()).default({}), thought: z.string().default('') }),
+    z.object({
+      type: z.literal('answer'),
+      text: z.string().min(1),
+      proposals: z.array(z.unknown()).default([]).transform((list) => list.flatMap((p) => {
+        const parsed = ProposalSchema.safeParse(p);
+        return parsed.success ? [parsed.data] : [];
+      })),
+    }),
+  ]),
+);
+
 const COMMON_RULES = [
   '你是招聘面试助手，服务对象是面试官，不是候选人。',
   '禁止推断或输出性别、年龄、婚育、民族、宗教、籍贯、外貌、身高、残障、性取向等与职务无关的特征。',
@@ -454,6 +499,38 @@ export class OpenAiCompatLlmProvider implements LlmProvider {
         'order 用维度 id 给出调查顺序；上一轮带过来的缺口由系统固定排最前，你只排其余维度。',
         'queries 的键必须是输入里的维度 id；没有把握就少给，系统会用标准里的关键词兜底。',
         '输出格式：{"order":["dim_id"],"queries":{"dim_id":["词1","词2"]},"rationale":"一句话说明为什么这样排"}',
+      ].join('\n'),
+      JSON.stringify(req),
+    );
+  }
+
+  async chooseNextStep(req: NextStepRequest): Promise<NextStepChoice> {
+    return this.complete<NextStepChoice>(
+      NextStepSchema,
+      [
+        '任务：你是一个查证型 agent 的决策器。系统给出当前合法的几个下一步动作，你选一个。',
+        '目标写在 goal 里；recent 是刚刚发生的几步。只能从 options 里选，不能发明动作。',
+        '判断原则：证据少且还有没试过的检索角度时，宁可再找一次；原话已经足够支撑判断时，及时起草；换了几次词仍找不到，就如实标成缺口，不要硬凑。',
+        'reason 用一句面试官能看懂的中文说明为什么选它、为什么不选其他。',
+        '输出格式：{"optionId":"opt1","reason":"..."}',
+      ].join('\n'),
+      JSON.stringify(req),
+    );
+  }
+
+  async assistantStep(req: AssistantStepRequest): Promise<AssistantStepDecision> {
+    return this.complete<AssistantStepDecision>(
+      AssistantSchema,
+      [
+        '任务：你是「面证」里的查证助手，回答面试官关于候选人、面试与面评的问题。',
+        '你在一个循环里工作：每一轮要么调用一个工具（type=tool），要么给出最终回答（type=answer）。observations 是之前工具的真实返回。',
+        '工具只读。需要 interviewId 或 candidateId 时，先用 find_interviews 找到，不要猜 id。context.focusInterviewId 是用户当前正在看的那场面试。',
+        '回答只能依据 observations 里的数据；查不到就直接说查不到，绝不编造候选人原话。引用原话时带上时间点。',
+        '不做录用或淘汰判断，不给总分；「证据不足」只表示还没问到，不代表能力不达标。',
+        'stepsLeft 不多时，用已有信息作答。回答用简体中文、短句，必要时用「· 」分行。',
+        'proposals 可选，只能是：run_prep（为某场生成一页纸，需 interviewId）、open_prep、open_draft（需 interviewId）、open_board、open_results。这些只是建议，由人确认后执行。',
+        '工具调用格式：{"type":"tool","tool":"工具名","args":{...},"thought":"一句话说明为什么查这个"}',
+        '最终回答格式：{"type":"answer","text":"...","proposals":[{"kind":"open_prep","interviewId":"..."}]}',
       ].join('\n'),
       JSON.stringify(req),
     );

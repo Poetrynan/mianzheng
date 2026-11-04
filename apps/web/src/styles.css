@@ -418,6 +418,38 @@
     transform: scale(0.985);
   }
 
+  /* 「问面证」：右下角入口 + 右侧面板，步骤逐条浮现。 */
+  .assistant-launcher {
+    background: linear-gradient(135deg, color-mix(in srgb, #fff 10%, var(--color-brand)), color-mix(in srgb, #7c4dff 55%, var(--color-brand)));
+    box-shadow: 0 10px 30px -10px color-mix(in srgb, var(--color-brand) 70%, transparent), 0 1px 0 rgb(255 255 255 / 18%) inset;
+  }
+  .assistant-launcher:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 36px -12px color-mix(in srgb, var(--color-brand) 80%, transparent), 0 1px 0 rgb(255 255 255 / 18%) inset;
+  }
+  .assistant-panel {
+    background: var(--panel-bg);
+    box-shadow: -24px 0 60px -30px rgb(0 0 0 / 45%);
+    animation: assistant-in 220ms var(--ease-out-quint) both;
+  }
+  .assistant-step {
+    animation: assistant-step-in 280ms var(--ease-out-quint) both;
+  }
+  @keyframes assistant-in {
+    from { transform: translateX(24px); opacity: 0; }
+    to { transform: none; opacity: 1; }
+  }
+  @keyframes assistant-step-in {
+    from { transform: translateY(4px); opacity: 0; }
+    to { transform: none; opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .assistant-panel,
+    .assistant-step {
+      animation: none;
+    }
+  }
+
   /* 手机上手指比鼠标粗：所有可点的控件和输入框至少 44px 高（WCAG 2.5.5 / 平台触控规范）。 */
   @media (max-width: 767px) {
     .press,

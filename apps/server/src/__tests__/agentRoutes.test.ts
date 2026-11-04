@@ -218,3 +218,34 @@ describe('Agent 的 HTTP 边界', () => {
     expect(malformed.json().message).toContain('回答');
   });
 });
+
+describe('问面证接口', () => {
+  it('发一句话立即返回 202，轮询同一个 run 看到完整步骤与回答；别的工作区读不到', async () => {
+    const hr = await registerOrg('杭州云帆科技有限公司', 'hr@yunfan.example');
+    const started = await server.inject({
+      method: 'POST',
+      url: '/assistant/runs',
+      headers: auth(hr),
+      payload: { message: '还有谁的面评没交？' },
+    });
+    expect(started.statusCode).toBe(202);
+    const runId: string = started.json().run.id;
+    expect(started.json().run.phase).toBe('assistant');
+
+    let run = started.json().run;
+    for (let i = 0; i < 20 && run.status === 'running'; i += 1) {
+      await new Promise((r) => setTimeout(r, 10));
+      run = (await server.inject({ method: 'GET', url: `/agent/runs/${runId}`, headers: auth(hr) })).json().run;
+    }
+    expect(run.status).toBe('completed');
+    expect(run.steps.some((s: { tool: string | null }) => s.tool === 'pending_reviews')).toBe(true);
+    expect(run.result.summary).toContain('没有等待提交的面评');
+
+    const outsider = await registerOrg('别家公司', 'hr@other.example');
+    const peek = await server.inject({ method: 'GET', url: `/agent/runs/${runId}`, headers: auth(outsider) });
+    expect(peek.statusCode).toBe(404);
+
+    const empty = await server.inject({ method: 'POST', url: '/assistant/runs', headers: auth(hr), payload: { message: '  ' } });
+    expect(empty.statusCode).toBe(400);
+  });
+});

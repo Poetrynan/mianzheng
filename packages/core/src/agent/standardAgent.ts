@@ -7,6 +7,7 @@ import {
   type AgentAnswerOutcome,
   type AgentDriver,
   type AgentToolOutcome,
+  type ToolAction,
   dataNumber,
   dataString,
   failedCount,
@@ -213,6 +214,14 @@ export class StandardAgentDriver implements AgentDriver {
     }
 
     return { type: 'tool', tool: 'compose_question', label: '挑下一个最该问的问题', kind: 'plan' };
+  }
+
+  /** The one judgement call in the interview: ask one more question, or is what we heard enough to draft? */
+  alternatives(run: AgentRun, defaultAction: ToolAction): ToolAction[] {
+    if (defaultAction.tool !== 'compose_question') return [];
+    const { std } = this.locale(run);
+    if (std.answers.length < 2 || failedCount(run, 'build_standard_draft') > 0) return [];
+    return [{ type: 'tool', tool: 'build_standard_draft', label: '信息够了，把访谈整理成考察维度草稿', kind: 'draft' }];
   }
 
   async act(run: AgentRun, tool: string): Promise<AgentToolOutcome> {

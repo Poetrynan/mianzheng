@@ -1,4 +1,9 @@
+import { mockAssistantStep, mockChooseNextStep } from './mockAssistant.js';
 import type {
+  AssistantStepDecision,
+  AssistantStepRequest,
+  NextStepChoice,
+  NextStepRequest,
   DimensionDraft,
   EvaluationDimensionDraft,
   EvaluationPlan,
@@ -249,6 +254,14 @@ export class MockLlmProvider implements LlmProvider {
       queries,
       rationale: '按维度名和标准里的匹配关键词安排调查顺序，先查上一轮留下的缺口。',
     };
+  }
+
+  async chooseNextStep(req: NextStepRequest): Promise<NextStepChoice> {
+    return mockChooseNextStep(req);
+  }
+
+  async assistantStep(req: AssistantStepRequest): Promise<AssistantStepDecision> {
+    return mockAssistantStep(req);
   }
 
   async draftEvaluation(req: EvaluationRequest): Promise<EvaluationResult> {

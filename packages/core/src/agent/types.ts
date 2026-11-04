@@ -1,6 +1,16 @@
 import type { EvidenceRef } from '../types.js';
 
-export type AgentPhase = 'standard' | 'prep' | 'evaluation';
+export type AgentPhase = 'standard' | 'prep' | 'evaluation' | 'assistant';
+
+/**
+ * Something the conversational agent suggests doing next. It never does these itself: the
+ * interviewer confirms in the UI, which then calls the ordinary endpoint with its usual checks.
+ */
+export interface AssistantProposal {
+  kind: 'run_prep' | 'open_prep' | 'open_draft' | 'open_board' | 'open_results';
+  interviewId: string | null;
+  label: string;
+}
 
 export type AgentRunStatus = 'running' | 'awaiting_human' | 'completed' | 'stopped' | 'failed';
 
@@ -51,6 +61,8 @@ export interface AgentResult {
   /** Dimensions with no score that a human must still decide about. */
   gapDimensionIds?: string[];
   carryOverDimensionNames?: string[];
+  /** Conversational agent only: next moves the human may confirm. */
+  proposals?: AssistantProposal[];
 }
 
 export interface AgentRun {

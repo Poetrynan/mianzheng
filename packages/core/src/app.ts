@@ -57,6 +57,7 @@ export class MianYanApp {
       goldenStandard: this.goldenStandard,
       prepPack: this.prepPack,
       evaluation: this.evaluation,
+      board: this.board,
     });
   }
 

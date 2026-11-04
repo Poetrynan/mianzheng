@@ -9,6 +9,8 @@ import { StandardAgentDriver } from './standardAgent.js';
 import { PrepAgentDriver } from './prepAgent.js';
 import { EvaluationAgentDriver } from './evaluationAgent.js';
 import { syncLedgerFromHistory } from './ledger.js';
+import { ASSISTANT_MAX_STEPS, AssistantAgentDriver, type AssistantTurn } from './assistant.js';
+import type { BoardService } from '../services/board.js';
 import type { AgentPhase, AgentRun, AgentSubject, EvidenceLedgerEntry } from './types.js';
 
 export interface AgentBundle {
@@ -22,15 +24,23 @@ export interface AgentDeps {
   goldenStandard: GoldenStandardService;
   prepPack: PrepPackService;
   evaluation: EvaluationService;
+  board: BoardService;
 }
 
 const GOALS: Record<AgentPhase, string> = {
   standard: '用尽量少的轮次，问出 4-7 个能落到证据上的考察维度',
   prep: '把上一轮没问清的缺口带进这一场，给出一页能直接照着问的提纲',
   evaluation: '每个维度要么找到原话，要么标成缺口，不替人下结论',
+  assistant: '回答面试官的问题：只根据查到的记录作答，查不到就说查不到',
 };
 
-const BUDGETS: Record<AgentPhase, number> = { standard: 32, prep: 16, evaluation: 44 };
+const BUDGETS: Record<AgentPhase, number> = { standard: 32, prep: 16, evaluation: 44, assistant: ASSISTANT_MAX_STEPS };
+
+export interface AssistantStart {
+  run: AgentRun;
+  /** Resolves when the loop finishes; the HTTP route does not wait for it, tests do. */
+  done: Promise<AgentRun>;
+}
 
 export class AgentService {
   constructor(
@@ -174,8 +184,45 @@ export class AgentService {
     return this.bundle(finished);
   }
 
+  /**
+   * 「问面证」: one user message is one run. The loop runs in the background so the page can
+   * poll /agent/runs/:id and show each step as it lands, instead of a spinner then a wall of text.
+   */
+  startAssistant(
+    actor: Actor,
+    orgId: string,
+    message: string,
+    options: { interviewId?: string | null; history?: AssistantTurn[] } = {},
+  ): AssistantStart {
+    const focus = options.interviewId ? this.ctx.store.findInterview(options.interviewId) : undefined;
+    const interviewId = focus && focus.orgId === orgId ? focus.id : null;
+    const run = this.createRun(
+      'assistant',
+      orgId,
+      { jobId: focus?.jobId ?? null, candidateId: focus?.candidateId ?? null, interviewId, standardId: null },
+      actor.kind === 'human' ? actor.userId : null,
+    );
+    run.goal = message;
+    this.save(run);
+    recordAudit(this.ctx, actor, 'agent.run.start', 'AgentRun', run.id, orgId, { phase: run.phase });
+
+    const role = actor.kind === 'human' ? actor.role : 'system';
+    const driver = new AssistantAgentDriver(this.ctx, this.deps.board, role, options.history ?? []);
+    const done = driveAgent(this.ctx, run, driver, actor, this.save).catch((err: unknown) => {
+      run.status = 'failed';
+      run.stopReason = err instanceof Error ? err.message : String(err);
+      run.endedAt = nowIso(this.ctx);
+      this.save(run);
+      return run;
+    });
+    return { run: structuredClone(run), done };
+  }
+
   async answer(runId: string, actor: Actor, answer: string): Promise<AgentBundle> {
     const run = this.requireRun(runId);
+    if (run.phase === 'assistant') {
+      throw new DomainError('not_supported', '「问面证」不需要回答问题，直接发下一句即可');
+    }
     const driver = this.driverFor(run, actor);
     const resumed = await answerAgentQuestion(this.ctx, run, driver, actor, answer, this.save);
     const finished = await driveAgent(this.ctx, resumed, driver, actor, this.save);
@@ -192,6 +239,8 @@ export class AgentService {
         const assigned = run.interviewerId ?? (actor.kind === 'human' ? actor.userId : '');
         return new EvaluationAgentDriver(this.ctx, this.deps.evaluation, actor, assigned);
       }
+      case 'assistant':
+        throw new DomainError('not_supported', '「问面证」的任务不能恢复，请重新提问');
     }
   }
 

@@ -3,6 +3,7 @@ import {
   AlertTriangle,
   BookOpen,
   CheckCircle2,
+  Compass,
   Flag,
   HelpCircle,
   History,
@@ -13,7 +14,7 @@ import {
   UserCheck,
   type LucideIcon,
 } from 'lucide-react';
-import type { AgentRun, AgentRunStatus, AgentStep } from './api/types';
+import type { AgentDecision, AgentRun, AgentRunStatus, AgentStep } from './api/types';
 import { Badge, Btn, ErrorNote, Panel, Subhead, cx, useBottomFade } from './ui';
 
 const STATUS: Record<AgentRunStatus, { label: string; tone: 'ai' | 'human' | 'ok' | 'warn' | 'bad' }> = {
@@ -24,7 +25,7 @@ const STATUS: Record<AgentRunStatus, { label: string; tone: 'ai' | 'human' | 'ok
   failed: { label: '没有完成', tone: 'bad' },
 };
 
-const KIND_ICON: Record<AgentStep['kind'], LucideIcon> = {
+export const KIND_ICON: Record<AgentStep['kind'], LucideIcon> = {
   plan: ListChecks,
   read: BookOpen,
   search: Search,
@@ -53,6 +54,37 @@ const STEP_TONE: Record<StepTone, { icon: string; row: string }> = {
   ok: { icon: 'bg-ok/12 text-tint-ok', row: 'bg-ok/[0.05]' },
   warn: { icon: 'bg-warn/14 text-tint-warn', row: 'bg-warn/[0.05]' },
 };
+
+const DECIDED_BY: Record<AgentDecision['by'], { label: string; tone: 'ai' | 'idle' | 'warn' }> = {
+  model: { label: '模型决定', tone: 'ai' },
+  mock: { label: '样例推理', tone: 'idle' },
+  rule: { label: '规则兜底', tone: 'warn' },
+};
+
+export function decisionOf(step: AgentStep): AgentDecision | null {
+  const d = step.data?.decision as Partial<AgentDecision> | undefined;
+  if (!d || typeof d.reason !== 'string' || !d.by) return null;
+  return { by: d.by, reason: d.reason, chosen: d.chosen ?? step.label, considered: Array.isArray(d.considered) ? d.considered : [] };
+}
+
+/**
+ * 这一步为什么走这条路：谁做的决定、理由、以及没选的那几条。让「自己决定下一步」看得见，
+ * 也让人一眼分得清是真模型、样例推理，还是模型没答上来时代码兜底。
+ */
+export function DecisionNote({ decision }: { decision: AgentDecision }) {
+  const by = DECIDED_BY[decision.by];
+  const skipped = decision.considered.filter((c) => c !== decision.chosen);
+  return (
+    <div className="mt-1 flex items-start gap-1.5 text-[12px] leading-relaxed text-mist">
+      <Compass className="mt-[3px] h-3 w-3 shrink-0 text-tint-brand" strokeWidth={2} aria-hidden />
+      <span className="min-w-0">
+        <Badge tone={by.tone} className="mr-1.5 align-[1px]">{by.label}</Badge>
+        {decision.reason}
+        {skipped.length > 0 ? <span className="text-mist-dim">　没选：{skipped.join('、')}</span> : null}
+      </span>
+    </div>
+  );
+}
 
 function isEmptySearch(step: AgentStep): boolean {
   if (step.tool !== 'search_transcript' || !step.ok) return false;
@@ -159,6 +191,7 @@ export function AgentTrace({
                     {step.detail ? (
                       <p className="mt-0.5 text-[12px] leading-relaxed text-mist">{step.detail}</p>
                     ) : null}
+                    {decisionOf(step) ? <DecisionNote decision={decisionOf(step)!} /> : null}
                   </div>
                 </div>
               );

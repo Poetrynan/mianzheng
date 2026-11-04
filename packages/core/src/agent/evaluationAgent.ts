@@ -19,6 +19,7 @@ import {
   type AgentAction,
   type AgentAnswerOutcome,
   type AgentDriver,
+  type ToolAction,
   type AgentToolOutcome,
   dataString,
   failedCount,
@@ -241,6 +242,14 @@ function outOfRunway(run: AgentRun, dims: StandardDimension[]): boolean {
   return run.budget.maxSteps - run.steps.length <= left + FINISH_STEPS;
 }
 
+function lastSearchWithHits(run: AgentRun, dimensionId: string): AgentStep | undefined {
+  for (let i = run.steps.length - 1; i >= 0; i -= 1) {
+    const s = run.steps[i];
+    if (s?.tool === 'search_transcript' && s.ok && s.data?.dimensionId === dimensionId && segmentIdsFromStep(s).length > 0) return s;
+  }
+  return undefined;
+}
+
 /** Working memory accumulates: a retry reads every hit found for this dimension, not just the last query's. */
 function segmentIdsFromSearches(run: AgentRun, dimensionId: string): string[] {
   const ids: string[] = [];
@@ -379,14 +388,20 @@ export class EvaluationAgentDriver implements AgentDriver {
         return searchAgainOrGap();
       }
 
-      const hits = refsSegments(lastSearch);
-      if (hits.length === 0) {
+      /**
+       * Evidence accumulates across searches. When the model chose "search one more angle" and
+       * that angle found nothing, the quotes already found still count — read or draft from them
+       * instead of throwing them away.
+       */
+      const lastHitSearch = lastSearchWithHits(run, dim.id);
+      if (!lastHitSearch) {
         return searchAgainOrGap();
       }
 
-      const readIsFresh = Boolean(lastRead && lastRead.ok && lastRead.index > lastSearch.index);
+      const readIsFresh = Boolean(lastRead && lastRead.ok && lastRead.index > lastHitSearch.index);
       if (!readIsFresh) {
-        return { type: 'tool', tool: 'read_segments', label: `读「${dim.name}」相关的 ${hits.length} 段原话`, kind: 'read' };
+        const found = segmentIdsFromSearches(run, dim.id).length;
+        return { type: 'tool', tool: 'read_segments', label: `读「${dim.name}」相关的 ${found} 段原话`, kind: 'read' };
       }
 
       /** A failed draft only retries after fresh evidence was read; otherwise try another keyword. */
@@ -397,6 +412,36 @@ export class EvaluationAgentDriver implements AgentDriver {
     }
 
     return { type: 'tool', tool: 'assemble_draft', label: '把逐个维度的结果合成面评草稿', kind: 'draft' };
+  }
+
+  /**
+   * The judgement calls inside one dimension: read what was found or look for more first;
+   * draft now or gather another angle; keep searching or stop and leave the gap honest.
+   * Dimension order already came from the model's plan, and the runway check still wins.
+   */
+  alternatives(run: AgentRun, defaultAction: ToolAction): ToolAction[] {
+    if (!['read_segments', 'draft_dimension', 'search_transcript'].includes(defaultAction.tool)) return [];
+    const interview = this.interview(run);
+    const std = this.standard(interview);
+    const dims = plannedDims(run, std);
+    if (outOfRunway(run, dims)) return [];
+    const dim = this.readDim(run, dims);
+    const queries = plannedQueries(run, dim);
+    const searches = countSearches(run, dim.id);
+    const alts: ToolAction[] = [];
+    if ((defaultAction.tool === 'read_segments' || defaultAction.tool === 'draft_dimension') && searches < queries.length) {
+      alts.push({
+        type: 'tool',
+        tool: 'search_transcript',
+        label: `换个词再找「${queries[searches]}」`,
+        kind: 'search',
+        detail: dim.name,
+      });
+    }
+    if (defaultAction.tool === 'search_transcript' && searches >= 1) {
+      alts.push({ type: 'tool', tool: 'mark_gap', label: `把「${dim.name}」标成缺口`, kind: 'remember' });
+    }
+    return alts;
   }
 
   async act(run: AgentRun, tool: string): Promise<AgentToolOutcome> {
@@ -774,10 +819,6 @@ function segmentIdsFromStep(step: AgentStep | undefined): string[] {
   const ids = step?.data?.segmentIds;
   if (!Array.isArray(ids)) return [];
   return ids.filter((id): id is string => typeof id === 'string');
-}
-
-function refsSegments(step: AgentStep): string[] {
-  return segmentIdsFromStep(step);
 }
 
 export function evaluationFailures(run: AgentRun): number {

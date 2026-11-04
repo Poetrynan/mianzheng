@@ -16,6 +16,7 @@ import {
 import { SessionProvider, useDirectory, useSession } from './session';
 import { Brand, ThemeToggle } from './chrome';
 import { DemoGuide } from './DemoGuide';
+import { AssistantDrawer } from './AssistantDrawer';
 import { ChoiceSelect } from './ChoiceSelect';
 import { Btn, InterviewPill, ROLE_LABEL, cx } from './ui';
 import { AuthScreen } from './screens/AuthScreen';
@@ -422,6 +423,15 @@ function Workspace() {
           {tab === 'compliance' ? <ComplianceScreen /> : null}
           {tab === 'team' ? <TeamScreen /> : null}
         </main>
+
+        <AssistantDrawer
+          focusInterviewId={interviewId || null}
+          focusLabel={active ? dir.labelOf(active) : null}
+          onNavigate={(next, id) => {
+            if (id) selectInterview(id);
+            setTab(next);
+          }}
+        />
 
         <div className="flex items-center justify-between gap-3 border-t border-line-soft px-4 py-3 lg:hidden">
           <p className="min-w-0 truncate text-[12px] text-mist-dim">

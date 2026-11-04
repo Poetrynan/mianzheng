@@ -9,8 +9,26 @@ export interface AgentQuestionDraft {
   options?: AgentQuestionOption[];
 }
 
+/** Who chose a move: the model, the deterministic sample provider, or the code's default rule. */
+export type DecisionSource = 'model' | 'mock' | 'rule';
+
+export interface ToolAction {
+  type: 'tool';
+  tool: string;
+  label: string;
+  kind?: AgentStepKind;
+  detail?: string | null;
+  /** Arguments for tools that need them (the conversational agent's tools). */
+  args?: Record<string, unknown>;
+  /** Why this move, in a sentence; stored on the step so a human can read the decision. */
+  why?: string;
+  decidedBy?: DecisionSource;
+  /** The moves that were on the table when this one was picked. */
+  considered?: string[];
+}
+
 export type AgentAction =
-  | { type: 'tool'; tool: string; label: string; kind?: AgentStepKind; detail?: string | null }
+  | ToolAction
   | { type: 'ask'; question: AgentQuestionDraft }
   | { type: 'note'; kind: 'plan' | 'remember' | 'verify'; label: string; detail?: string | null; data?: Record<string, unknown> }
   | { type: 'final'; summary: string; result?: Omit<AgentResult, 'summary'> }
@@ -35,7 +53,13 @@ export interface AgentAnswerOutcome {
 export interface AgentDriver {
   maxSteps: number;
   next(run: AgentRun): Promise<AgentAction> | AgentAction;
-  act(run: AgentRun, tool: string): Promise<AgentToolOutcome> | AgentToolOutcome;
+  /**
+   * Other moves that are legal right now besides the default one. When present and the model
+   * can choose, the runtime lets it pick among [default, ...alternatives]; code still decides
+   * what is legal, so the model can change the path but never break a guarantee.
+   */
+  alternatives?(run: AgentRun, defaultAction: ToolAction): ToolAction[] | Promise<ToolAction[]>;
+  act(run: AgentRun, tool: string, args?: Record<string, unknown>): Promise<AgentToolOutcome> | AgentToolOutcome;
   /** Applies a human answer to the domain (record it, set a disposition) before the loop resumes. */
   applyAnswer?(run: AgentRun, question: AgentQuestion, answer: string): Promise<AgentAnswerOutcome | void> | AgentAnswerOutcome | void;
   finalize?(run: AgentRun, result: AgentResult): Promise<void> | void;
@@ -74,6 +98,39 @@ function stopRun(ctx: ServiceContext, run: AgentRun, actor: Actor, reason: strin
     data: null,
   });
   recordAudit(ctx, actor, 'agent.run.stop', 'AgentRun', run.id, run.orgId, { reason });
+}
+
+/**
+ * The decision point. The driver's rule proposes a default move and lists the other legal ones;
+ * the model picks one and says why. Any failure — no model support, a timeout, an id that is not
+ * on the list — falls back to the default, so a flaky model can slow the agent but not derail it.
+ */
+async function chooseAmongLegal(ctx: ServiceContext, run: AgentRun, driver: AgentDriver, fallback: ToolAction): Promise<ToolAction> {
+  if (fallback.why || !driver.alternatives || !ctx.llm.chooseNextStep) return fallback;
+  const alternatives = await driver.alternatives(run, fallback);
+  const options: ToolAction[] = [fallback];
+  for (const alt of alternatives) {
+    if (!options.some((o) => o.tool === alt.tool && o.label === alt.label)) options.push(alt);
+  }
+  if (options.length < 2) return fallback;
+
+  const by: DecisionSource = ctx.llm.driver === 'mock' ? 'mock' : 'model';
+  const considered = options.map((o) => o.label);
+  try {
+    const choice = await ctx.llm.chooseNextStep({
+      phase: run.phase,
+      goal: run.goal,
+      recent: run.steps.slice(-6).map((s) => ({ label: s.label, detail: s.detail, ok: s.ok })),
+      options: options.map((o, i) => ({ id: `opt${i + 1}`, tool: o.tool, label: o.label, detail: o.detail ?? null })),
+    });
+    const index = Number(String(choice.optionId).replace(/^opt/, '')) - 1;
+    const picked = options[index];
+    if (!picked) throw new Error(`选了不在列表里的动作：${choice.optionId}`);
+    const reason = choice.reason?.trim() || `在 ${options.length} 个可选动作里选了「${picked.label}」`;
+    return { ...picked, why: reason, decidedBy: by, considered };
+  } catch (err) {
+    return { ...fallback, why: `模型这一步没给出可用的选择（${errorMessage(err)}），按默认顺序走`, decidedBy: 'rule', considered };
+  }
 }
 
 /**
@@ -132,7 +189,8 @@ export async function driveAgent(
     }
 
     if (action.type === 'tool') {
-      const key = `${action.tool}|${action.label}|${action.detail ?? ''}`;
+      action = await chooseAmongLegal(ctx, run, driver, action);
+      const key = `${action.tool}|${action.label}|${action.detail ?? ''}|${JSON.stringify(action.args ?? {})}`;
       repeats = key === lastKey ? repeats + 1 : 1;
       lastKey = key;
       if (repeats > MAX_SAME_ACTION) {
@@ -141,24 +199,29 @@ export async function driveAgent(
         return run;
       }
 
+      const decision = action.why
+        ? { by: action.decidedBy ?? 'rule', reason: action.why, chosen: action.label, considered: action.considered ?? [] }
+        : null;
       try {
-        const outcome = await driver.act(run, action.tool);
+        const outcome = await driver.act(run, action.tool, action.args);
+        const data = outcome.data ?? null;
         appendStep(ctx, run, {
           kind: outcome.kind ?? action.kind ?? 'read',
           label: outcome.label ?? action.label,
           detail: outcome.detail ?? action.detail ?? null,
           ok: true,
           tool: action.tool,
-          data: outcome.data ?? null,
+          data: decision ? { ...(data ?? {}), decision } : data,
         });
       } catch (err) {
+        const data = errorData(err);
         appendStep(ctx, run, {
           kind: action.kind ?? 'read',
           label: action.label,
           detail: errorMessage(err),
           ok: false,
           tool: action.tool,
-          data: errorData(err),
+          data: decision ? { ...(data ?? {}), decision } : data,
         });
       }
       save(run);

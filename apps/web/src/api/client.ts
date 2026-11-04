@@ -3,6 +3,7 @@ import type {
   AgentRun,
   AppNotification,
   AppealTicket,
+  AssistantTurn,
   AuditEntry,
   BoardOverview,
   BoardRow,
@@ -174,6 +175,9 @@ export const api = {
     run: (runId: string) => request<AgentBundle>('GET', `/agent/runs/${runId}`),
     answer: (runId: string, answer: string) =>
       request<AgentBundle>('POST', `/agent/runs/${runId}/answer`, { body: { answer } }),
+    /** 「问面证」：立即返回一个正在跑的 run，之后用 run(runId) 轮询每一步。 */
+    ask: (message: string, interviewId: string | null, history: AssistantTurn[]) =>
+      request<{ run: AgentRun }>('POST', '/assistant/runs', { body: { message, interviewId, history } }),
   },
   ledger: (candidateId: string, jobId: string) =>
     request<{ entries: EvidenceLedgerEntry[] }>('GET', `/ledger?${q({ candidateId, jobId })}`),

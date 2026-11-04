@@ -241,6 +241,14 @@ const cadenceSchema = z.object({ extraHours: z.coerce.number().min(0).max(168) }
 const draftActorSchema = z.object({ interviewerId: id.optional() });
 const agentEvaluationSchema = z.object({ interviewerId: id.optional() });
 const agentAnswerSchema = z.object({ answer: z.string().trim().min(1).max(2000) });
+const assistantSchema = z.object({
+  message: z.string().trim().min(1).max(500),
+  interviewId: id.optional().nullable(),
+  history: z
+    .array(z.object({ role: z.enum(['user', 'assistant']), text: z.string().max(2000) }))
+    .max(12)
+    .default([]),
+});
 const ledgerQuerySchema = z.object({ candidateId: id, jobId: id });
 
 export function registerRoutes(
@@ -623,6 +631,20 @@ export function registerRoutes(
   server.post('/agent/runs/:runId/answer', async (req) => {
     const b = parse(agentAnswerSchema, req.body);
     return app.agent.answer((req.params as { runId: string }).runId, actorOf(req), b.answer);
+  });
+
+  /**
+   * 「问面证」：一句话发起一次 agent 运行，立即返回；页面轮询 /agent/runs/:runId 看每一步。
+   * 关注的面试 id 不属于当前工作区时被忽略（服务层再核一次），工具也只读当前工作区。
+   */
+  server.post('/assistant/runs', async (req, reply) => {
+    const b = parse(assistantSchema, req.body);
+    const started = app.agent.startAssistant(actorOf(req), req.auth!.org.id, b.message, {
+      interviewId: b.interviewId ?? null,
+      history: b.history,
+    });
+    started.done.catch(() => undefined);
+    reply.status(202).send({ run: started.run });
   });
 
   /** The candidate's evidence memory: what was backed, what is still open, what carries forward. */

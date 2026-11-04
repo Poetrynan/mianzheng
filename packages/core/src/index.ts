@@ -34,4 +34,5 @@ export * from './agent/ledger.js';
 export { StandardAgentDriver, analyzeIntakeAnswers, composeAdaptiveQuestion, type IntakeCoverage, type ComposedQuestion } from './agent/standardAgent.js';
 export { PrepAgentDriver, prepQuestionCount, prepToolOrder } from './agent/prepAgent.js';
 export { EvaluationAgentDriver, searchQueries, searchSegments, evaluationFailures } from './agent/evaluationAgent.js';
-export { AgentService, type AgentBundle, type AgentDeps } from './agent/service.js';
+export { AgentService, type AgentBundle, type AgentDeps, type AssistantStart } from './agent/service.js';
+export { ASSISTANT_TOOLS, ASSISTANT_MAX_STEPS, AssistantAgentDriver, type AssistantTurn } from './agent/assistant.js';
