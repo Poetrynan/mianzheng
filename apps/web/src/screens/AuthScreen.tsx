@@ -9,8 +9,8 @@ type Mode = 'login' | 'register';
 type FieldErrors = Partial<Record<'orgName' | 'name' | 'email' | 'password' | 'confirm', string>>;
 
 const DEMO_ACCOUNTS = [
+  { label: '面试官 · 建议先体验', email: 'wang@demo.mianzheng.local' },
   { label: '招聘负责人（HR）', email: 'hr@demo.mianzheng.local' },
-  { label: '面试官', email: 'wang@demo.mianzheng.local' },
   { label: '用人经理', email: 'zhao@demo.mianzheng.local' },
 ];
 const DEMO_PASSWORD = 'mianzheng2026';
@@ -24,7 +24,7 @@ export function AuthScreen() {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [showDemo, setShowDemo] = useState(false);
+  const [showDemo, setShowDemo] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -309,7 +309,7 @@ export function AuthScreen() {
                   >
                     <span className="inline-flex items-center gap-1.5 text-[12px] text-mist">
                       <HelpCircle className="h-3.5 w-3.5" aria-hidden />
-                      演示账号（面试官用）
+                      体验 Demo · 选择一个角色
                     </span>
                     <ChevronDown
                       className={cx('h-3.5 w-3.5 text-mist-dim transition-transform', showDemo && 'rotate-180')}
@@ -327,7 +327,8 @@ export function AuthScreen() {
                               setPassword(DEMO_PASSWORD);
                               setError(null);
                             }}
-                            className="press flex w-full flex-wrap items-baseline justify-between gap-2 rounded-lg px-2 py-2 text-left transition hover:bg-raise"
+                            disabled={busy}
+                            className="press flex w-full flex-wrap items-baseline justify-between gap-2 rounded-lg px-2 py-2 text-left transition hover:bg-raise disabled:opacity-60"
                           >
                             <span className="text-[12px] text-paper">{account.label}</span>
                             <span className="text-[11px] text-mist-dim">{account.email}</span>
@@ -335,7 +336,7 @@ export function AuthScreen() {
                         </li>
                       ))}
                       <li className="px-2 pt-1 text-[11px] leading-relaxed text-mist-dim">
-                        密码都是 {DEMO_PASSWORD}；点一行自动填好。演示数据是虚构的。
+                        点一个角色自动填好，再点「登录」。密码都是 {DEMO_PASSWORD}。共享演示数据为虚构，请勿上传真实简历或录音。
                       </li>
                     </ul>
                   ) : null}

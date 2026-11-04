@@ -49,10 +49,22 @@ export function DraftScreen({
   const [summaries, setSummaries] = useState<Record<string, string>>({});
   const [confirm, setConfirm] = useState({ fillUnscored: false, agreeUsedForDecision: false, anonymizeName: true });
   const [openCheck, setOpenCheck] = useState<string | null>(null);
+  const [sourceSegmentId, setSourceSegmentId] = useState<string | null>(null);
+  const sourceRef = useRef<HTMLParagraphElement>(null);
   const [run, setRun] = useState<AgentRun | null>(null);
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [activeCheckId, setActiveCheckId] = useState('');
   const defaultedFor = useRef('');
+
+  useEffect(() => {
+    setSourceSegmentId(null);
+  }, [interviewId, activeCheckId]);
+
+  useEffect(() => {
+    if (!sourceSegmentId || !openCheck || step !== 2) return;
+    sourceRef.current?.scrollIntoView({ block: 'nearest' });
+    sourceRef.current?.focus({ preventScroll: true });
+  }, [sourceSegmentId, openCheck, step]);
 
   const detail = useLoader(draftId ? () => api.draftDetail(draftId) : async () => null, [draftId]);
   const notice = useLoader(() => api.notice(), []);
@@ -91,7 +103,7 @@ export function DraftScreen({
   /** 换一份面评时，把工作台停在这份草稿最该继续的那一步；同一份草稿刷新不抢当前步骤。 */
   if (d && defaultedFor.current !== d.draft.id) {
     defaultedFor.current = d.draft.id;
-    setStep(d.draft.status === 'submitted' ? 3 : d.draft.checks.length === 0 ? 1 : 2);
+    setStep(d.draft.checks.length === 0 ? 1 : 2);
     setActiveCheckId(d.draft.checks.find((c) => !c.finalScore)?.id ?? d.draft.checks[0]?.id ?? '');
     setOpenCheck(null);
   }
@@ -220,8 +232,8 @@ export function DraftScreen({
             onSelect={(index) => setStep(index as 1 | 2 | 3)}
             steps={[
               { index: 1, label: '起草', desc: 'AI 先按考察标准整理原话' },
-              { index: 2, label: `逐项确认（${scored}/${checks.length}）`, desc: '每一项由你终评' },
-              { index: 3, label: '综合与提交', desc: '写意见并提交' },
+              { index: 2, label: `${isSubmitted ? '逐项查看' : '逐项确认'}（${scored}/${checks.length}）`, desc: isSubmitted ? '已提交，可回查证据' : '每一项由你终评' },
+              { index: 3, label: isSubmitted ? '综合意见' : '综合与提交', desc: isSubmitted ? '查看已提交意见' : '写意见并提交' },
             ]}
           />
         </div>
@@ -316,8 +328,8 @@ export function DraftScreen({
       {d && step === 2 ? (
         <>
           <div className="flex flex-wrap items-baseline justify-between gap-3">
-            <h2 className="text-[15px] font-semibold text-paper">逐项确认</h2>
-            <span className="text-[12px] text-mist-dim">先看 AI 起草的原话，再给出你的判断</span>
+            <h2 className="text-[15px] font-semibold text-paper">{isSubmitted ? '逐项查看' : '逐项确认'}</h2>
+            <span className="text-[12px] text-mist-dim">{isSubmitted ? '已提交 · 只读，点击时间戳回查原文' : '先看 AI 起草的原话，再给出你的判断'}</span>
           </div>
 
           <div className="surface-2 p-4">
@@ -418,9 +430,25 @@ export function DraftScreen({
                           <div className="flex flex-col gap-2">
                             {(ev?.resolvedText ?? []).map((r) => (
                               <blockquote key={r.segmentId} className="border-l border-brand/40 pl-3">
-                                <span className="num text-[11px] text-mist-dim">
-                                  {clock(ev?.refs.find((x) => x.segmentId === r.segmentId)?.startMs ?? 0)}
-                                </span>
+                                <button
+                                  type="button"
+                                  disabled={r.text === null}
+                                  aria-controls={`transcript-${check.id}`}
+                                  aria-expanded={open}
+                                  aria-label={`定位到 ${clock(ev?.refs.find((x) => x.segmentId === r.segmentId)?.startMs ?? 0)} 的原文`}
+                                  className="press inline-flex min-h-8 items-center gap-2 rounded-md px-1 text-[12px] text-mist underline decoration-line-hi underline-offset-4 hover:text-paper disabled:no-underline disabled:opacity-60"
+                                  onClick={() => {
+                                    setOpenCheck(check.id);
+                                    setSourceSegmentId(r.segmentId);
+                                    if (sourceSegmentId === r.segmentId) {
+                                      sourceRef.current?.scrollIntoView({ block: 'nearest' });
+                                      sourceRef.current?.focus({ preventScroll: true });
+                                    }
+                                  }}
+                                >
+                                  <span className="num">{clock(ev?.refs.find((x) => x.segmentId === r.segmentId)?.startMs ?? 0)}</span>
+                                  <span>{r.text === null ? '原文已清理' : '定位原文'}</span>
+                                </button>
                                 <p className="mt-0.5 font-serif text-[14px] leading-[1.85] text-paper">
                                   {r.text ?? '（这段录音已到留存期限，文字已清理）'}
                                 </p>
@@ -467,6 +495,7 @@ export function DraftScreen({
                         <div className="mt-3">
                           <Field
                             label="判断依据"
+                            disabled={isSubmitted}
                             multiline
                             rows={4}
                             value={summaries[check.id] ?? ''}
@@ -500,7 +529,10 @@ export function DraftScreen({
                               保存这一项
                             </Btn>
 
-                            <Btn variant="quiet" icon={ChevronDown} onClick={() => setOpenCheck(open ? null : check.id)}>
+                            <Btn variant="quiet" icon={ChevronDown} onClick={() => {
+                              setSourceSegmentId(null);
+                              setOpenCheck(open ? null : check.id);
+                            }}>
                               {open ? '收起原文' : '对照全文'}
                             </Btn>
                           </div>
@@ -510,13 +542,24 @@ export function DraftScreen({
                         </div>
 
                         {open ? (
-                          <div className="mt-3 max-h-60 overflow-y-auto rounded-xl bg-ink-1000/50 p-3 [scrollbar-gutter:stable]">
-                            {d.transcript.map((seg) => (
-                              <p key={seg.segmentId} className="mb-1.5 text-[12px] leading-relaxed">
-                                <span className="num mr-1.5 text-mist-dim">{clock(seg.startMs)}</span>
-                                <span className="text-paper">{seg.text}</span>
-                              </p>
-                            ))}
+                          <div id={`transcript-${check.id}`} role="region" aria-label={`${check.dimensionName} 的转写原文`} tabIndex={0}
+                            className="mt-3 max-h-72 overflow-y-auto rounded-xl border border-line bg-ink-1000/50 p-3 [scrollbar-gutter:stable]">
+                            <p className="mb-3 text-[12px] leading-relaxed text-mist-dim">高亮为当前引用，请结合前后问答核实。原文可定位，不代表转写与判断一定正确。</p>
+                            {d.transcript.map((seg) => {
+                              const selected = seg.segmentId === sourceSegmentId;
+                              return (
+                                <p key={seg.segmentId} ref={selected ? sourceRef : undefined} tabIndex={-1}
+                                  className={cx('mb-2 rounded-lg border p-2 text-[13px] leading-relaxed',
+                                    selected ? 'border-human/40 bg-human/10' : 'border-transparent')}>
+                                  <span className="mb-1 flex flex-wrap items-center gap-2 text-[11px] text-mist-dim">
+                                    <span className="num">{clock(seg.startMs)}</span>
+                                    <span>{seg.speaker === 'candidate' ? '候选人' : seg.speaker === 'interviewer' ? '面试官' : '未标注说话人'}</span>
+                                    {selected ? <span className="text-tint-human">当前引用</span> : null}
+                                  </span>
+                                  <span className="text-paper">{seg.text}</span>
+                                </p>
+                              );
+                            })}
                             {d.transcript.length === 0 ? <p className="text-[12px] text-mist-dim">原文已到留存期限并清理。</p> : null}
                           </div>
                         ) : null}
@@ -539,7 +582,7 @@ export function DraftScreen({
               <Btn onClick={() => goCheck(1)}>下一项</Btn>
             ) : (
               <Btn variant="primary" onClick={() => setStep(3)}>
-                去写综合意见
+                {isSubmitted ? '查看综合意见' : '去写综合意见'}
               </Btn>
             )}
           </div>
@@ -551,6 +594,7 @@ export function DraftScreen({
           <Panel title="综合意见" subtitle="这部分由你自由书写，AI 不替你做结论。" icon={FileText}>
             <Field
               label="你的推荐意见与后续建议"
+              disabled={isSubmitted}
               multiline
               rows={4}
               value={recommendation}

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { SessionProvider, useDirectory, useSession } from './session';
 import { Brand, ThemeToggle } from './chrome';
+import { DemoGuide } from './DemoGuide';
 import { Btn, InterviewPill, ROLE_LABEL, cx } from './ui';
 import { AuthScreen } from './screens/AuthScreen';
 import { BoardScreen } from './screens/Board';
@@ -358,6 +359,19 @@ function Workspace() {
         </nav>
 
         <main id="main" tabIndex={-1} className="mx-auto flex max-w-[1180px] flex-col gap-4 px-4 py-5 sm:px-6">
+          {tab === 'today' ? (
+            <DemoGuide
+              directory={dir}
+              onOpenInterview={(next, id) => {
+                selectInterview(id);
+                setTab(next);
+              }}
+              onOpenStandard={(jobId) => {
+                setStandardJobId(jobId);
+                setTab('standard');
+              }}
+            />
+          ) : null}
           {tab === 'today' ? (
             <TodayScreen
               onOpenInterview={(next, id) => {

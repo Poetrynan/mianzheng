@@ -432,6 +432,12 @@
         gap: 12px;
         margin-top: 26px;
       }
+      .hero-note {
+        margin-top: 16px;
+        color: var(--mist);
+        font-size: 13px;
+        line-height: 1.8;
+      }
 
       /* ---------- 首屏演示：一场面试从转写到提交，四个状态循环 ---------- */
       .demo {
@@ -1505,6 +1511,13 @@
         color: var(--mist);
         max-width: 40em;
       }
+      .faq p a {
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      .faq p a:hover {
+        color: var(--paper);
+      }
 
       /* ---------- 结尾与页脚 ---------- */
       .close {
@@ -1885,7 +1898,7 @@
             </svg>
           </button>
           <a class="nav-signin" href="/">登录</a>
-          <a class="btn btn-primary" href="/">开始使用</a>
+          <a class="btn btn-primary" href="/">体验 Demo</a>
         </div>
       </div>
       <div class="nav-menu" id="nav-menu" hidden>
@@ -1912,9 +1925,10 @@
           <div>
             <p class="lead">面试前，面证通过追问与用人经理确定 4 到 7 个考察维度，形成一页纸。面试结束后，按同一套维度从转写中提取原话、起草面评，面试官核对并打分后提交。</p>
             <div class="hero-cta">
-              <a class="btn btn-primary btn-lg" href="/">开始使用</a>
+              <a class="btn btn-primary btn-lg" href="/">体验 Demo</a>
               <a class="btn btn-ghost btn-lg" href="#compare">查看面评示例</a>
             </div>
+            <p class="hero-note">可交互原型 · 演示账号已备好，数据为虚构样例。先看一轮面评，再看下一轮如何接着核实。</p>
           </div>
         </div>
 
@@ -2038,11 +2052,11 @@
         <div class="facts">
           <div class="fact">
             <b>30<span class="u">分钟</span></b>
-            <p>与用人经理确定一个岗位的考察标准</p>
+            <p>定标的设计目标，待试点验证</p>
           </div>
           <div class="fact">
             <b>5<span class="u">分钟</span></b>
-            <p>面试前读完一页纸，明确本轮考察重点</p>
+            <p>读完一页纸的设计目标，待试点验证</p>
           </div>
           <div class="fact">
             <b>一句<span class="u">原话</span></b>
@@ -2261,7 +2275,7 @@
         <header class="sec-head sec-head--shot">
           <div>
             <h2 id="agent-h">换词三次，仍无原话即标注证据不足</h2>
-            <p class="lede">同一个概念，有人称「客户」，有人称「干系人」，也有人只说「那几个部门」。面证不依赖固定词表：由系统决定下一个检索词，命中则继续，未命中则更换；第三次仍未命中，标注「证据不足」。以下为一次查证记录。</p>
+            <p class="lede">同一个概念，有人称「客户」，有人称「干系人」，也有人只说「那几个部门」。面证由 Agent 提议检索词，未命中则更换；三组词仍未找到原话，就标注「证据不足」。以下为虚构数据的查证示例；更多表达可能漏检，仍需面试官复核。</p>
           </div>
           <figure class="sec-shot">
             <img
@@ -2276,9 +2290,9 @@
         </header>
 
         <div class="agent-grid">
-          <div class="trace" role="group" aria-label="面证一次查证据的真实记录">
+          <div class="trace" role="group" aria-label="面证使用虚构数据的查证示例">
             <div class="trace-head">
-              <b>查证据的记录 · 二面</b>
+              <b>示例查证记录 · 二面</b>
               <span>林嘉禾 · 高级后端工程师 · 4 个考察维度</span>
             </div>
             <ol class="trace-list">
@@ -2437,7 +2451,7 @@
             </span>
             <div>
               <h3>只导入转写文字，不导入视频</h3>
-              <p>读取钉钉听记、飞书妙记或腾讯会议导出的文字，由面试官确认候选人身份后再导入。线下面试可用面试官本机录音，识别在本机完成。</p>
+              <p>读取钉钉听记、飞书妙记或腾讯会议导出的文字，由面试官确认候选人身份后再导入。线下面试可在浏览器录音，上传后按后端配置转写。</p>
             </div>
           </article>
           <article class="trust-item">
@@ -2447,8 +2461,8 @@
               </svg>
             </span>
             <div>
-              <h3>不存视频，最长保留 6 个月</h3>
-              <p>文字与录音到期自动清理。删除请求留痕，候选人可以申请人工复核。</p>
+              <h3>不存视频，默认保留 180 天</h3>
+              <p>提供录音与转写的到期清理入口。删除请求留痕，候选人可以申请人工复核。</p>
             </div>
           </article>
           <article class="trust-item">
@@ -2471,8 +2485,8 @@
               </svg>
             </span>
             <div>
-              <h3>拦截与岗位无关的特征</h3>
-              <p>性别、年龄、婚育、地域、外貌等表述，写入考察维度或面评文字时都会被拦截。</p>
+              <h3>检查与岗位无关的表述</h3>
+              <p>写入考察维度或面评时，对性别、年龄、婚育等敏感表述做规则检查；规则仍可能漏检，需由人复核。</p>
             </div>
           </article>
           <article class="trust-item">
@@ -2503,21 +2517,28 @@
                 需要替换现在用的招聘系统吗？
                 <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2.5v11M2.5 8h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
               </summary>
-              <p>不需要，会议软件也无需更换。面证只负责面试到评估这一段，不迁移现有系统，也不需要历史数据。面评定稿后可导出，放回原有流程。</p>
+              <p>不需要，会议软件也无需更换。面证只负责面试到评估这一段，不迁移现有系统，也不需要历史面试数据。当前通过导入转写和导出面评接入工作流，尚未与 ATS 自动同步。</p>
             </details>
             <details>
               <summary>
                 已经在用钉钉听记或飞书妙记，还需要面证吗？
                 <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2.5v11M2.5 8h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
               </summary>
-              <p>听记和妙记负责把面试转成文字，面证直接使用其转写。区别在转写之后：面证按用人经理确定的考察标准逐项查找原话，找不到就标注「证据不足」，不替面试官补分；下一轮的一页纸会优先追问上一轮未问清的维度。要验证效果，可以取同一批面试的两份面评，隐去来源，请用人经理比较。</p>
+              <p>这些工具已有转写、总结或面试模板，普通面评可以先用它们。面证尝试解决更具体的需求：通过用人经理访谈形成岗位标准、按标准核对原话、把未核实的维度带入下一轮。同一批转写与会议工具模板做盲评，才能判断增加这一步是否值得。</p>
+            </details>
+            <details>
+              <summary>
+                和已有 AI 面评产品相比，重点是什么？
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2.5v11M2.5 8h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+              </summary>
+              <p><a href="https://www.metaview.ai/resources/blog/ai-scorecard-adoption" target="_blank" rel="noopener noreferrer">Metaview</a>、<a href="https://brighthire.com/ai-interview-notes/" target="_blank" rel="noopener noreferrer">BrightHire</a> 已有按维度起草、关联面试依据与人工复核的能力，单纯「AI 写面评」不足以形成差异。面证优先验证「访谈定标 → 保留证据缺口 → 跨轮追问」这套轻量流程，服务不愿迁移 ATS、缺少历史面试数据的小团队。这是待验证的切入假设，尚不能证明竞争优势或付费意愿。</p>
             </details>
             <details>
               <summary>
                 多久可以开始使用？
                 <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2.5v11M2.5 8h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
               </summary>
-              <p>当天即可。与用人经理用 30 分钟确定一个岗位的考察标准，下一场面试即可带一页纸进场，结束后获得面评草稿。</p>
+              <p>演示账号可以直接体验。实际试用先选一个岗位，与用人经理确认考察标准，再导入一场面试的转写。30 分钟完成定标、5 分钟读完一页纸是设计目标，实际耗时需在试点中测量。</p>
             </details>
             <details>
               <summary>
@@ -2531,7 +2552,7 @@
                 录音和转写存储在哪里，保留多久？
                 <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2.5v11M2.5 8h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
               </summary>
-              <p>转写来自企业已在使用的钉钉听记、飞书妙记或腾讯会议，面证只保存导入的文字；线下面试使用面试官本机录音时，识别在本机完成。文字与录音最长保留 6 个月，到期自动清理。面证不保存面试视频。</p>
+              <p>导入会议转写时，面证保存文字；浏览器录音则上传至后端，并按部署配置使用本地或远端转写服务。启用远端模型时，相关文字会发送至所配置的模型服务。录音与转写默认保留 180 天，原型提供到期清理入口，生产部署还需配置定时清理任务。面证不保存面试视频；演示环境请勿上传真实候选人资料。</p>
             </details>
             <details>
               <summary>
@@ -2545,7 +2566,8 @@
                 如何判断实际效果？
                 <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2.5v11M2.5 8h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
               </summary>
-              <p>建议以一个岗位试用四周，观察一项指标：24 小时内提交、且每个评分都有原话可查的面评占比。与试用前对比，没有明显变化即可停用。</p>
+              <p>计划用 12 周、3–5 家企业、100–150 场面试验证，当前尚无客户试点结果。先测真实基线，再比较人工填写、会议工具面试模板与面证。重点看「24 小时内提交、各考察维度有落点、结论可回查原话」的面评占比，同时记录复核耗时和引用错误。</p>
+              <p>继续投入需同时看到质量、效率与付费意愿：隐去来源后由用人经理盲评，与会议工具模板相比不足 0.5 分（5 分制），或第 12 周不足 2 家签付费意向书，则停止扩展。看板样例数字只用于展示计算口径。</p>
             </details>
           </div>
         </div>
@@ -2557,7 +2579,7 @@
             <h2>从一个岗位开始</h2>
             <p>选择一个正在招聘的岗位，今天确定考察标准，下一场面试结束后即可获得面评草稿。</p>
           </div>
-          <a class="btn btn-primary btn-lg" href="/">开始使用</a>
+          <a class="btn btn-primary btn-lg" href="/">体验 Demo</a>
         </div>
       </div>
     </main>
