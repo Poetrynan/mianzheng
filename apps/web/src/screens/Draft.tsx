@@ -4,6 +4,7 @@ import { api } from '../api/client';
 import { messageOf, useDirectory, useLoader, useSession } from '../session';
 import type { AgentRun, ScoreLevel } from '../api/types';
 import { AgentTrace } from '../AgentTrace';
+import { AgentRunSummary } from '../AgentRunSummary';
 import {
   Badge,
   Btn,
@@ -231,6 +232,7 @@ export function DraftScreen({
 
   return (
     <div className="grid gap-4">
+      {run ? <AgentRunSummary run={run}><AgentTrace run={run} title="这次面评是怎么查的" onAnswer={(answer) => void answerGap(answer)} answering={pending === '处理缺口'} error={noteOf('缺口').err} /></AgentRunSummary> : null}
       {d ? (
         <div className="surface-2 p-4 sm:p-5">
           <WorkflowStepper
@@ -313,16 +315,6 @@ export function DraftScreen({
         <ErrorNote message={noteOf('起草').err ?? drafts.error ?? detail.error} />
         <OkNote message={noteOf('起草').ok} />
       </Panel>
-
-      {run ? (
-        <AgentTrace
-          run={run}
-          title="这次面评是怎么查的"
-          onAnswer={(answer) => void answerGap(answer)}
-          answering={pending === '处理缺口'}
-          error={noteOf('缺口').err}
-        />
-      ) : null}
 
       {d && d.draft.rejectedClaims.length > 0 ? (
         <details className="surface-2 group px-4 py-3">
@@ -431,6 +423,7 @@ export function DraftScreen({
                       </Subhead>
                       <div className="inset-ai p-4">
                         <ScoreRow ai={check.aiScore} final={check.finalScore} />
+                        <p className="mt-2 text-[12px] leading-relaxed text-mist-dim">AI 建议仅供核对，不会自动填入终评；候选人结果只采用你的终评。</p>
 
                         <p className="mt-3 text-[13px] leading-relaxed text-paper">
                           {check.aiSummary ?? '这段对话里没有足够的原话支撑这一项。'}

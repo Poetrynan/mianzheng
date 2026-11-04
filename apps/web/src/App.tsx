@@ -136,6 +136,9 @@ function readActiveInterview(): string {
 function Workspace() {
   const { status, org, me, interviews, logout } = useSession();
   const [tab, setTab] = useState<Tab>('today');
+  const [assistantRequest, setAssistantRequest] = useState<{ id: number; question: string } | null>(null);
+  const [assistantBusy, setAssistantBusy] = useState(false);
+  const requestNumber = useRef(0);
   useEffect(() => { setTab('today'); }, [me?.id]);
   useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }); }, [tab]);
   const mobileNavRef = useRef<HTMLElement>(null);
@@ -371,6 +374,8 @@ function Workspace() {
           {tab === 'today' ? (
             <DemoGuide
               directory={dir}
+              busy={assistantBusy}
+              onAsk={(question) => setAssistantRequest({ id: ++requestNumber.current, question })}
               onOpenInterview={(next, id) => {
                 selectInterview(id);
                 setTab(next);
@@ -425,6 +430,8 @@ function Workspace() {
         </main>
 
         <AssistantDrawer
+          request={assistantRequest}
+          onBusyChange={setAssistantBusy}
           focusInterviewId={interviewId || null}
           focusLabel={active ? dir.labelOf(active) : null}
           onNavigate={(next, id) => {

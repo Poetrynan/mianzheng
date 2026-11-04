@@ -785,7 +785,7 @@ const scoreTone = (s: ScoreLevel | null): Tone => (s === null ? 'idle' : s === '
 export function ScoreRow({ ai, final }: { ai: ScoreLevel | null; final: ScoreLevel | null }) {
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-      <span className="text-[12px] text-mist-dim">AI 初评</span>
+      <span className="text-[12px] text-mist-dim">AI 建议分 · 非终评</span>
       <Badge tone={scoreTone(ai)} className="min-w-[88px]">{ai ? SCORE_LABEL[ai] : '没有原话支撑'}</Badge>
       <span className="mx-1 h-3.5 w-px bg-line" aria-hidden />
       <span className="text-[12px] text-mist-dim">我的终评</span>

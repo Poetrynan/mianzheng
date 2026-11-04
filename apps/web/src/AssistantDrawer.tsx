@@ -5,6 +5,7 @@ import type { AgentRun, AssistantProposal, AssistantTurn } from './api/types';
 import { messageOf, useLoader } from './session';
 import { Badge, cx } from './ui';
 import { DecisionNote, KIND_ICON, decisionOf } from './AgentTrace';
+import { agentDetail } from './agentView';
 
 type NavTab = 'prep' | 'draft' | 'board' | 'results';
 
@@ -37,10 +38,14 @@ export function AssistantDrawer({
   focusInterviewId,
   focusLabel,
   onNavigate,
+  request,
+  onBusyChange,
 }: {
   focusInterviewId: string | null;
   focusLabel: string | null;
   onNavigate: (tab: NavTab, interviewId: string | null) => void;
+  request?: { id: number; question: string } | null;
+  onBusyChange?: (busy: boolean) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [turns, setTurns] = useState<Turn[]>([]);
@@ -51,6 +56,8 @@ export function AssistantDrawer({
   const health = useLoader(() => api.health(), []);
   const sample = health.data?.llmDriver === 'mock';
   const busy = turns.some((t) => t.run?.status === 'running' || (!t.run && !t.error));
+  const handledRequest = useRef<number | null>(null);
+  useEffect(() => { onBusyChange?.(busy); }, [busy, onBusyChange]);
 
   // ⌘K / Ctrl+K 打开，Esc 关闭
   useEffect(() => {
@@ -109,6 +116,13 @@ export function AssistantDrawer({
     e.preventDefault();
     void ask(text);
   };
+
+  useEffect(() => {
+    if (!request || handledRequest.current === request.id || busy) return;
+    handledRequest.current = request.id;
+    setOpen(true);
+    void ask(request.question);
+  }, [request, busy]);
 
   const act = async (p: AssistantProposal) => {
     if (p.kind === 'run_prep' && p.interviewId) {
@@ -278,7 +292,7 @@ function TurnView({ turn, acting, onAct }: { turn: Turn; acting: string | null; 
                     </span>
                     <div className="min-w-0">
                       <p className="text-[13px] font-medium leading-snug text-paper">{step.label}</p>
-                      {step.detail ? <p className="mt-0.5 text-[12px] leading-relaxed text-mist">{step.detail}</p> : null}
+                      {step.detail ? <p className="mt-0.5 text-[12px] leading-relaxed text-mist">{agentDetail(step.detail)}</p> : null}
                       {decision ? <DecisionNote decision={decision} /> : null}
                     </div>
                   </div>

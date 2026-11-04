@@ -1,4 +1,5 @@
-import { ArrowRight, BookOpen } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowRight, ArrowUp, BookOpen, Sparkles } from 'lucide-react';
 import { api } from './api/client';
 import { useLoader, useSession, type Directory } from './session';
 import { Badge } from './ui';
@@ -14,14 +15,19 @@ export function DemoGuide({
   directory,
   onOpenInterview,
   onOpenStandard,
+  onAsk,
+  busy = false,
 }: {
   directory: Directory;
   onOpenInterview: (tab: 'prep' | 'draft', interviewId: string) => void;
   onOpenStandard: (jobId: string) => void;
+  onAsk: (question: string) => void;
+  busy?: boolean;
 }) {
   const { me, interviews } = useSession();
   const isDemo = DEMO_EMAILS.has(me?.email ?? '');
   const health = useLoader(isDemo ? () => api.health() : async () => null, [isDemo]);
+  const [task, setTask] = useState('');
   if (!isDemo) return null;
 
   const all = interviews.data ?? [];
@@ -32,6 +38,8 @@ export function DemoGuide({
   const next = first ? [...all]
     .filter((it) => it.candidateId === first.candidateId && it.jobId === first.jobId && it.round > first.round)
     .sort((a, b) => a.round - b.round)[0] : undefined;
+  const name = first ? directory.labelOf(first).split(' · ')[0] : null;
+  const examples = name ? [`${name}哪几个维度还没有证据？`, `帮我准备${name}下一轮的追问`, `${name}提到过「分库分表」吗？`] : ['还有谁的面评没交？'];
 
   return (
     <section className="surface-2 overflow-hidden" aria-labelledby="demo-guide-title">
@@ -40,15 +48,26 @@ export function DemoGuide({
           <BookOpen className="h-3.5 w-3.5" aria-hidden />
           示例工作区 · 虚构数据
         </span>
-        <Badge>{health.data?.llmDriver === 'mock' ? 'AI 使用固定样例输出' : '流程演示'}</Badge>
+        <Badge>{health.data?.llmDriver === 'mock' ? '样例推理 · 非真实模型' : health.data ? '已接入模型' : '正在确认运行环境'}</Badge>
       </div>
       <div className="p-4 sm:p-5">
-        <h2 id="demo-guide-title" className="text-[18px] font-semibold text-paper">先看这一轮，再看下一轮怎么接</h2>
+        <h2 id="demo-guide-title" className="flex items-center gap-2 text-[20px] font-semibold text-paper"><Sparkles className="h-5 w-5 text-tint-brand" aria-hidden />给面试证据 Agent 一个任务</h2>
         <p className="mt-2 text-[13px] leading-relaxed text-mist">
-          看同一位候选人：按什么标准评价、哪些判断有原话、哪些仍需核实。证据不足表示尚未核实，不代表能力不达标。
+          查上一轮缺口、找候选人原话、准备追问。你说目标，它查记录并显示每一步的理由；要改数据时先等你确认。
         </p>
+        <form className="mt-4" onSubmit={(e) => { e.preventDefault(); if (!busy && task.trim()) { onAsk(task.trim()); setTask(''); } }}>
+          <div className="flex items-center gap-2 rounded-xl border border-line bg-[var(--field-bg)] p-2 focus-within:border-brand/50">
+            <input value={task} onChange={(e) => setTask(e.target.value)} maxLength={500} aria-label="给面试证据 Agent 一个任务" placeholder={name ? `例如：${name}哪几个维度还没有证据？` : '例如：还有谁的面评没交？'} className="min-h-11 min-w-0 flex-1 bg-transparent px-2 text-[14px] text-paper outline-none placeholder:text-mist-dim" />
+            <button type="submit" disabled={busy || !task.trim()} className="press flex min-h-11 shrink-0 items-center gap-2 rounded-lg bg-brand px-3 text-[13px] font-medium text-on-brand disabled:opacity-40" aria-label="交给 Agent 查证"><span className="hidden sm:inline">交给 Agent</span><ArrowUp className="h-4 w-4" aria-hidden /></button>
+          </div>
+        </form>
+        <div className="mt-3 grid gap-2 md:grid-cols-3" aria-label="可以交给 Agent 的任务">
+          {examples.map((question) => <button key={question} type="button" disabled={busy} onClick={() => onAsk(question)} className="press min-h-11 rounded-lg border border-line-soft bg-raise-soft px-3 py-2 text-left text-[12px] leading-relaxed text-paper hover:border-brand/40 disabled:opacity-50">{question}</button>)}
+        </div>
+        <p className="mt-3 text-[12px] leading-relaxed text-mist-dim">只围绕面试证据查证；证据不足不代表能力不达标。终评分数和提交由面试官完成。</p>
         {first && next ? (
-          <>
+          <details className="mt-4 border-t border-line-soft pt-3">
+            <summary className="cursor-pointer text-[12px] font-medium text-mist">查看三个阶段样例：定标、面评、下一轮准备</summary>
             <p className="mt-3 text-[12px] text-mist-dim">{directory.labelOf(first)}</p>
             <div className="mt-3 grid gap-2 md:grid-cols-3">
               {[
@@ -66,7 +85,7 @@ export function DemoGuide({
                 </button>
               ))}
             </div>
-          </>
+          </details>
         ) : (
           <p className="mt-3 text-[12px] leading-relaxed text-mist-dim">
             {interviews.loading ? '正在读取样例面试…' : '当前没有可串联的两轮面试，可从下方待办或页面导航继续。'}

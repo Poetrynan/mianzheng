@@ -16,6 +16,7 @@ import { api } from '../api/client';
 import { messageOf, useDirectory, useLoader, useSession } from '../session';
 import type { AgentRun, AlignmentMark, LedgerStatus } from '../api/types';
 import { AgentTrace } from '../AgentTrace';
+import { AgentRunSummary } from '../AgentRunSummary';
 import {
   Badge,
   Btn,
@@ -163,6 +164,8 @@ export function PrepScreen({
   }
 
   return (
+    <div className="grid gap-4">
+      {run ? <AgentRunSummary run={run}><AgentTrace run={run} title="这一页纸是怎么来的" /></AgentRunSummary> : null}
     <div className="grid items-start gap-4 lg:grid-cols-[1.18fr_1fr]">
       {/* Left Column: the run trace + the one-pager it produced */}
       <div className="grid min-w-0 content-start gap-4">
@@ -355,7 +358,6 @@ export function PrepScreen({
           </div>
         )}
       </Panel>
-        {run ? <AgentTrace run={run} title="这一页纸是怎么来的" /> : null}
       </div>
 
       {/* Right Column: what the agent remembers + the question deck */}
@@ -490,6 +492,7 @@ export function PrepScreen({
         </div>
       </Panel>
       </div>
+    </div>
     </div>
   );
 }

@@ -3,13 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>面证 · 面试证据与面评草稿</title>
+    <title>冯诗楠-莫纳什大学-笔试作业｜面证 Agent</title>
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta
       name="description"
-      content="为 200 到 1000 人规模公司的招聘团队设计。导入钉钉、飞书或腾讯会议的面试转写，按岗位考察标准摘出候选人原话，生成面评草稿。面试官核对、评分后提交，HR 可在一屏内查看未提交名单。"
+      content="面证 Agent 会计划、调用工具查原话，再根据结果决定下一步：查不到就换词，拿不准就问人。结论附原话与时间点，评分和提交由面试官完成。演示环境使用样例推理。"
     />
     <script>
       // 主题在首屏绘制前定下来，避免刷新时闪一下反色。默认是白纸，深色是手动的选择。
@@ -29,16 +29,17 @@
     <a class="skip" href="#main">跳到主要内容</a>
 
     <header class="nav">
+      <p class="submission-banner">冯诗楠-莫纳什大学-笔试作业</p>
       <div class="nav-inner">
-        <a class="brand" href="#top" aria-label="面证首页">
+        <a class="brand" href="#top" aria-label="面证 Agent 首页">
           <img class="mark mark-for-light" src="/mark-on-light.png" width="22" height="22" alt="" />
           <img class="mark mark-for-dark" src="/mark-on-dark.png" width="22" height="22" alt="" />
-          <span>面证</span>
+          <span>面证<b class="brand-agent">Agent</b></span>
         </a>
         <nav class="nav-links" aria-label="页面导航">
           <a href="#teams">适用团队</a>
           <a href="#product">产品功能</a>
-          <a href="#agent">查证过程</a>
+          <a href="#how">Agent 如何工作</a>
           <a href="#trust">安全与合规</a>
           <a href="#faq">常见问题</a>
         </nav>
@@ -72,7 +73,7 @@
         <nav aria-label="页面导航">
           <a href="#teams">适用团队</a>
           <a href="#product">产品功能</a>
-          <a href="#agent">查证过程</a>
+          <a href="#how">Agent 如何工作</a>
           <a href="#trust">安全与合规</a>
           <a href="#faq">常见问题</a>
         </nav>
@@ -86,17 +87,18 @@
       <div class="hero-band">
       <section class="hero wrap" aria-labelledby="hero-h">
         <div class="hero-top">
-          <span class="hero-kicker"><i aria-hidden="true"></i>AI 面试证据 Agent</span>
+          <span class="hero-kicker"><i aria-hidden="true"></i>面试证据 AI Agent</span>
           <h1 id="hero-h">
             <span>让每一句评价，</span><span class="grad">都能回到原话。</span>
           </h1>
           <div>
-            <p class="lead">用同一套岗位标准准备面试、整理原话、衔接下一轮。AI 负责起草，面试官作出判断。</p>
+            <p class="lead">一个会<strong>自己决定下一步</strong>的面试证据 Agent：先计划，再调工具查原话，<br class="hero-break" />查不到就换个词，拿不准就停下来问你。</p>
             <div class="hero-cta">
               <a class="btn btn-primary btn-lg" href="/">体验 Demo<svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg></a>
               <a class="btn btn-ghost btn-lg" href="#compare">查看面评示例</a>
+              <a class="ask-entry" href="#how">问面证 <span aria-hidden="true">·</span> <kbd>Ctrl K</kbd><span class="sr-only">，进入 Demo 后可用；查看对话示例</span></a>
             </div>
-            <p class="hero-note">提供演示账号，使用虚构数据。无需上传真实资料。</p>
+            <p class="hero-note"><span class="sample-label">样例推理</span> 演示使用虚构数据与样例推理；接入模型后，由模型决定下一步。评分和提交由人完成。</p>
             <p class="hero-sources"><span>可导入转写</span><b>钉钉听记</b><b>飞书妙记</b><b>腾讯会议</b><b>本机录音</b></p>
           </div>
         </div>
@@ -104,7 +106,7 @@
         <div class="demo" id="demo" data-stage="4">
           <div class="demo-win" role="group" aria-label="交互演示：虚构面试从转写到人工确认的流程">
             <aside class="demo-rail" aria-hidden="true">
-              <div class="demo-rail-brand">面证<span>面试工作区</span></div>
+              <div class="demo-rail-brand">面证 Agent<span>面试工作区</span></div>
               <p class="demo-rail-group">工作台</p>
               <p>今天</p><p>考察标准</p><p>一页纸准备</p><p>现场记录</p>
               <p class="is-current">面评</p>
@@ -127,6 +129,12 @@
                 <span class="chip chip-human" data-only="3">草稿已生成，待面试官评分</span>
                 <span class="chip chip-brand" data-only="4">已提交 · 14:56</span>
               </span>
+            </div>
+            <div class="demo-think" role="status" aria-live="off" aria-label="为什么这一步（样例推理）">
+              <p data-only="1"><b>为什么这一步</b><span>一面「跨部门推动力」缺证据，这轮先查它。<small>没选：直接起草</small></span></p>
+              <p data-only="2"><b>为什么这一步</b><span>「客户」没找到，换成「团队」再查，命中 00:07:35。<small>没选：凭印象下结论</small></span></p>
+              <p data-only="3"><b>为什么这一步</b><span>「数据驱动」换了 3 个词仍无原话，标成证据不足。<small>没选：补写不存在的证据</small></span></p>
+              <p data-only="4" class="think-human"><b>为什么停下</b><span>草稿已交给面试官；由人核对、评分后提交。<small>没选：替人打分或提交</small></span></p>
             </div>
             <div class="demo-panes">
               <div class="pane pane-tx">
@@ -200,22 +208,75 @@
             </div>
           </div>
 
-          <div class="demo-steps" role="group" aria-label="流程步骤">
-            <button type="button" aria-pressed="false" style="--dur: 4600ms"><span class="bar"><i></i></span><b>导入转写</b><span>导入会议软件转写，确认候选人</span></button>
-            <button type="button" aria-pressed="false" style="--dur: 3400ms"><span class="bar"><i></i></span><b>摘出原话</b><span>按考察维度标记关键回答</span></button>
-            <button type="button" aria-pressed="false" style="--dur: 3800ms"><span class="bar"><i></i></span><b>生成草稿</b><span>没有原话的维度写明证据不足</span></button>
-            <button type="button" aria-pressed="true" style="--dur: 4600ms"><span class="bar"><i></i></span><b>面试官打分</b><span>评分由面试官填写后提交</span></button>
+          <div class="demo-steps" role="group" aria-label="查看 Agent 的四个决策片段">
+            <button type="button" aria-pressed="false" style="--dur: 4600ms"><span class="bar"><i></i></span><b>定计划</b><span>先读上一轮缺口，决定先查什么</span></button>
+            <button type="button" aria-pressed="false" style="--dur: 3400ms"><span class="bar"><i></i></span><b>调工具查原话</b><span>找不到就自己换词重试</span></button>
+            <button type="button" aria-pressed="false" style="--dur: 3800ms"><span class="bar"><i></i></span><b>核对与判断</b><span>没有原话的维度写明证据不足</span></button>
+            <button type="button" aria-pressed="true" style="--dur: 4600ms"><span class="bar"><i></i></span><b>停下交给人</b><span>评分由面试官填写后提交</span></button>
           </div>
         </div>
 
         <div class="facts">
-          <div class="fact" data-reveal><span class="fact-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg></span><b>同一套岗位标准</b><p>准备、追问、面评，围绕同一组维度</p></div>
+          <div class="fact" data-reveal><span class="fact-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6" /><path d="m15.4 8.6-2.2 4.6-4.6 2.2 2.2-4.6 4.6-2.2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /></svg></span><b>自己决定下一步</b><p>查不到会换个词，拿不准会停下问人</p></div>
           <div class="fact" data-reveal><span class="fact-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M7 7h4v4H7zM7 15h10M13 9h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /><rect x="3.5" y="3.5" width="17" height="17" rx="3.5" stroke="currentColor" stroke-width="1.5" /></svg></span><b>每条结论有出处</b><p>回查原话与时间点，结合上下文复核</p></div>
           <div class="fact" data-reveal><span class="fact-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12h12M12 7l5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /><path d="M20 5v14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg></span><b>缺口接到下一轮</b><p>尚未核实的维度，成为下一轮追问</p></div>
           <div class="fact" data-reveal><span class="fact-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.6" stroke="currentColor" stroke-width="1.6" /><path d="M5 20a7 7 0 0 1 14 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg></span><b>关键决定由人完成</b><p>人签标准、人定分、人提交面评</p></div>
         </div>
       </section>
       </div>
+
+      <!-- Agent 如何工作 -->
+      <section id="how" class="wrap band" aria-labelledby="how-h">
+        <header class="sec-head" data-reveal>
+          <span class="eyebrow">Agent 如何工作</span>
+          <h2 id="how-h">这不是一条流水线，<br />是一个会自己决定下一步的 Agent</h2>
+          <p class="lede">每查一次，都根据结果重新判断。证据不够就继续找，拿不准就停下问你。</p>
+        </header>
+
+        <div class="how-grid">
+          <ol class="loop" data-reveal aria-label="Agent 的工作循环">
+            <li><span class="loop-n">1</span><div><b>接到目标</b><p>「林嘉禾的跨部门推动力，有原话吗？」</p></div></li>
+            <li><span class="loop-n">2</span><div><b>定计划</b><p>先看上一轮缺口，再查本轮转写。</p></div></li>
+            <li class="loop-back-start"><span class="loop-n">3</span><div><b>调工具</b><p>读证据账本，检索候选人的原话。</p></div></li>
+            <li><span class="loop-n">4</span><div><b>看结果</b><p>找到就核对上下文；没找到就保留空缺。</p></div></li>
+            <li class="loop-back-end"><span class="loop-n">5</span><div><b>决定下一步 <span class="loop-return">证据不够，换词再查</span></b><p>证据够了才起草，步数用完如实标缺口。</p></div></li>
+            <li class="loop-human"><span class="loop-n">6</span><div><b>拿不准时问人</b><p>停下来等你确认；评分和提交始终由人做。</p></div></li>
+          </ol>
+
+          <figure class="chat" data-reveal aria-label="「问面证」对话示例（虚构数据）">
+            <div class="chat-head">
+              <span class="chat-mark" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1.8 9.4 6.6 14.2 8 9.4 9.4 8 14.2 6.6 9.4 1.8 8l4.8-1.4L8 1.8Z" fill="currentColor" /></svg></span>
+              <b>问面证</b>
+              <span class="chat-kbd">Ctrl K</span>
+              <span class="sample-label">样例推理</span>
+            </div>
+            <div class="chat-body">
+              <p class="chat-user">林嘉禾的跨部门推动力，有原话吗？</p>
+              <ol class="chat-steps">
+                <li><b>读面试记录与证据账本</b><span>一面缺少原话，先查二面转写</span></li>
+                <li><b>检索「客户」→ 未命中</b><em>证据还少，换词继续；没有直接下结论</em></li>
+                <li><b>换成「团队」→ 命中 00:07:35</b><span>读回上下文，核对候选人身份与原文</span></li>
+              </ol>
+              <div class="chat-answer">
+                <b>找到一段相关原话</b>
+                <blockquote>「要改上下游接口，我拉了五个团队开对齐会，先定接口规范再排期。」</blockquote>
+                <p class="chat-citation">林嘉禾 · 二面转写 · <time>00:07:35</time></p>
+                <p>能看到他组织了跨团队对齐；还需追问是否落地，不能据此直接评为高分。</p>
+                <a class="chat-action" href="#agent">查看完整查证示例 <span aria-hidden="true">↗</span></a>
+              </div>
+            </div>
+            <figcaption>虚构对话示例。查了什么、为什么换词，都有记录。</figcaption>
+          </figure>
+        </div>
+
+        <dl class="how-stats" data-reveal>
+          <div><dt>3 + 1 个 Agent</dt><dd>定标、准备、面评三个阶段，加上「问面证」对话 Agent</dd></div>
+          <div><dt>20+ 个工具</dt><dd>查转写、读简历、翻账本、核引用，每次调用都有记录</dd></div>
+          <div><dt>跨轮记忆</dt><dd>上一轮没问清的维度记在账本里，下一轮自动先补</dd></div>
+          <div><dt>有边界</dt><dd>每次运行有步数上限；改数据、打分、提交都要人确认</dd></div>
+        </dl>
+        <p class="how-note">演示环境使用样例推理；接入模型后，由模型在允许的动作中决定下一步。<a href="#agent">继续看一份完整查证记录 →</a></p>
+      </section>
 
       <!-- 对比 -->
       <section id="compare" class="wrap" aria-labelledby="compare-h">
@@ -469,8 +530,8 @@
                   <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="6.2" stroke="currentColor" stroke-width="1.6" /><path d="M15.6 15.6 20 20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><path d="M8.6 11h4.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
                 </span>
                 <div>
-                  <p class="t-title">更换「干系人」重新检索</p>
-                  <p class="t-body">命中 2 段候选人原话，已读入。</p>
+                  <p class="t-title">更换「团队」重新检索</p>
+                  <p class="t-body">命中候选人原话，已读入上下文。</p>
                   <p class="quote">「我拉了五个团队开对齐会，先定接口规范再排期。」</p>
                   <p class="stamp">原话 · 00:07:35</p>
                 </div>
@@ -480,7 +541,7 @@
                 </span>
                 <div>
                   <p class="t-title">为「跨部门推动力」起草结论</p>
-                  <p class="t-body">由 2 段原话支撑，结论标记为「待确认」。</p>
+                  <p class="t-body">由已核对的原话支撑，结论标记为「待确认」。</p>
                 </div>
               </li>
 <li>
@@ -554,8 +615,8 @@
             <p class="instead">面试结束后，列出应追问而未追问的问题。</p>
           </article>
           <article class="no" data-reveal>
-            <h3>不由 AI 打分</h3>
-            <p>机器先给出分数，人的判断会被锚定，讨论也会围绕分数展开。</p>
+            <h3>终评由人定</h3>
+            <p>AI 可在草稿中提供建议分，不会自动填入终评；候选人结果只采用面试官的终评。</p>
             <p class="instead">评分控件默认留空，由面试官填写。</p>
           </article>
           <article class="no" data-reveal>
@@ -709,7 +770,7 @@
                 AI 会给候选人打分或给出录用建议吗？
                 <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2.5v11M2.5 8h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
               </summary>
-              <p>不会。AI 只负责摘出原话、标出证据不足的维度。评分控件默认留空，结论由面试官作出，系统也不生成整体匹配度总分。</p>
+              <p>AI 可在有原话支撑的草稿中提供建议分，建议分不是终评，也不会自动进入候选人结果。终评分数、综合意见和提交由面试官完成；系统不做候选人排名、录用建议或整体匹配度总分。</p>
             </details>
             <details>
               <summary>
@@ -743,7 +804,7 @@
               <img class="mark mark-for-dark" src="/mark-on-dark.png" width="32" height="32" alt="" />
             </span>
             <div>
-              <strong>面证</strong>
+              <strong>面证 Agent</strong>
               <p>为招聘团队设计的 AI 面评助手。按岗位标准生成带原话的面评草稿。</p>
             </div>
           </div>
@@ -762,7 +823,7 @@
           </nav>
         </div>
         <div class="foot-bar">
-          <span>© 2026 面证</span>
+          <span>© 2026 面证 Agent</span>
           <a href="#top">回到顶部</a>
         </div>
       </div>

@@ -411,7 +411,7 @@ export class EvaluationAgentDriver implements AgentDriver {
       return { type: 'tool', tool: 'draft_dimension', label: `给「${dim.name}」起一稿`, kind: 'draft' };
     }
 
-    return { type: 'tool', tool: 'assemble_draft', label: '把逐个维度的结果合成面评草稿', kind: 'draft' };
+    return { type: 'tool', tool: 'assemble_draft', label: '把逐个维度的结果合成面评草稿', kind: 'draft', why: '所有维度已有核对过的原话或明确的缺口，停止检索并交由面试官逐项终评', decidedBy: 'rule' };
   }
 
   /**

@@ -47,19 +47,19 @@ export class PrepAgentDriver implements AgentDriver {
 
   next(run: AgentRun): AgentAction {
     if (!succeeded(run, 'read_ledger')) {
-      return { type: 'tool', tool: 'read_ledger', label: '翻看上一轮留下的证据缺口', kind: 'read' };
+      return { type: 'tool', tool: 'read_ledger', label: '翻看上一轮留下的证据缺口', kind: 'read', why: '先读已提交面评的证据账本，确认这一轮需要补问哪些缺口', decidedBy: 'rule' };
     }
     if (!succeeded(run, 'read_resume')) {
-      return { type: 'tool', tool: 'read_resume', label: '读候选人的简历', kind: 'read' };
+      return { type: 'tool', tool: 'read_resume', label: '读候选人的简历', kind: 'read', why: '账本已读完，再读简历，区分已有经历与仍需当面核实的表述', decidedBy: 'rule' };
     }
     if (!succeeded(run, 'build_pack')) {
-      return { type: 'tool', tool: 'build_pack', label: '把缺口和简历合成一页纸', kind: 'draft' };
+      return { type: 'tool', tool: 'build_pack', label: '把缺口和简历合成一页纸', kind: 'draft', why: '账本与简历已读取，按已确认的岗位标准整理追问，上一轮缺口优先', decidedBy: 'rule' };
     }
 
     const lastStep = run.steps[run.steps.length - 1];
     const validate = stepOf(run, 'validate_pack');
     if (!validate || (lastStep?.tool === 'repair_pack' && lastStep.ok)) {
-      return { type: 'tool', tool: 'validate_pack', label: '自查这一页纸能不能直接照着问', kind: 'verify' };
+      return { type: 'tool', tool: 'validate_pack', label: '自查这一页纸能不能直接照着问', kind: 'verify', why: '先核对维度覆盖、问题数量、合规和缺口顺序；检查通过才交给面试官', decidedBy: 'rule' };
     }
     if (validate.ok) {
       const pack = this.ctx.store.latestPrepPack(this.interview(run).id);
@@ -75,7 +75,7 @@ export class PrepAgentDriver implements AgentDriver {
       };
     }
     if (failedCount(run, 'repair_pack') < MAX_REPAIRS) {
-      return { type: 'tool', tool: 'repair_pack', label: '把对不上的问题补上或删掉', kind: 'draft' };
+      return { type: 'tool', tool: 'repair_pack', label: '把对不上的问题补上或删掉', kind: 'draft', why: `自检未通过：${validate.detail ?? '存在未满足的准备要求'}；修正后再次检查，最多修复两次`, decidedBy: 'rule' };
     }
     return { type: 'stop', reason: '一页纸自检没过，先停下交给你看' };
   }

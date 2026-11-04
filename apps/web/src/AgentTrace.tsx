@@ -15,6 +15,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import type { AgentDecision, AgentRun, AgentRunStatus, AgentStep } from './api/types';
+import { agentDetail, decisionOf } from './agentView';
+export { decisionOf } from './agentView';
 import { Badge, Btn, ErrorNote, Panel, Subhead, cx, useBottomFade } from './ui';
 
 const STATUS: Record<AgentRunStatus, { label: string; tone: 'ai' | 'human' | 'ok' | 'warn' | 'bad' }> = {
@@ -58,14 +60,8 @@ const STEP_TONE: Record<StepTone, { icon: string; row: string }> = {
 const DECIDED_BY: Record<AgentDecision['by'], { label: string; tone: 'ai' | 'idle' | 'warn' }> = {
   model: { label: '模型决定', tone: 'ai' },
   mock: { label: '样例推理', tone: 'idle' },
-  rule: { label: '规则兜底', tone: 'warn' },
+  rule: { label: '程序规则', tone: 'idle' },
 };
-
-export function decisionOf(step: AgentStep): AgentDecision | null {
-  const d = step.data?.decision as Partial<AgentDecision> | undefined;
-  if (!d || typeof d.reason !== 'string' || !d.by) return null;
-  return { by: d.by, reason: d.reason, chosen: d.chosen ?? step.label, considered: Array.isArray(d.considered) ? d.considered : [] };
-}
 
 /**
  * 这一步为什么走这条路：谁做的决定、理由、以及没选的那几条。让「自己决定下一步」看得见，
@@ -79,8 +75,8 @@ export function DecisionNote({ decision }: { decision: AgentDecision }) {
       <Compass className="mt-[3px] h-3 w-3 shrink-0 text-tint-brand" strokeWidth={2} aria-hidden />
       <span className="min-w-0">
         <Badge tone={by.tone} className="mr-1.5 align-[1px]">{by.label}</Badge>
-        {decision.reason}
-        {skipped.length > 0 ? <span className="text-mist-dim">　没选：{skipped.join('、')}</span> : null}
+        <span className="font-medium text-paper">为什么这一步：</span>{decision.reason}
+        {skipped.length > 0 && !decision.reason.includes('没选') ? <span className="text-mist-dim">　没选：{skipped.join('、')}</span> : null}
       </span>
     </div>
   );
@@ -155,6 +151,7 @@ export function AgentTrace({
       tone={run.status === 'awaiting_human' ? 'human' : run.status === 'stopped' || run.status === 'failed' ? 'warn' : 'ai'}
       right={<Badge tone={status.tone}>{status.label}</Badge>}
     >
+      <div className="flex flex-col">
       {visible.length === 0 ? (
         <p className="text-[13px] leading-relaxed text-mist-dim">刚开始，还没有动作。</p>
       ) : (
@@ -189,7 +186,7 @@ export function AgentTrace({
                       {attempt > 1 ? <span className="text-[12px] text-mist-dim">第 {attempt} 次</span> : null}
                     </div>
                     {step.detail ? (
-                      <p className="mt-0.5 text-[12px] leading-relaxed text-mist">{step.detail}</p>
+                      <p className="mt-0.5 text-[12px] leading-relaxed text-mist">{agentDetail(step.detail)}</p>
                     ) : null}
                     {decisionOf(step) ? <DecisionNote decision={decisionOf(step)!} /> : null}
                   </div>
@@ -216,7 +213,7 @@ export function AgentTrace({
       ) : null}
 
       {question ? (
-        <div className="inset-human mt-4 p-4">
+        <div className="inset-human order-first mb-4 p-4">
           <Subhead icon={HelpCircle}>到你了</Subhead>
           <p className="mt-1 text-[13px] font-medium leading-relaxed text-paper">{question.question}</p>
           {question.detail ? <p className="mt-1 text-[12px] leading-relaxed text-mist">{question.detail}</p> : null}
@@ -271,6 +268,7 @@ export function AgentTrace({
           <ErrorNote message={error} />
         </div>
       ) : null}
+      </div>
     </Panel>
   );
 }

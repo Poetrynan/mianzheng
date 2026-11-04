@@ -61,21 +61,26 @@ const applyStage = (stage: number) => {
  */
 const panes = demo?.querySelector<HTMLElement>('.demo-panes');
 const bar = demo?.querySelector<HTMLElement>('.demo-bar');
+const think = demo?.querySelector<HTMLElement>('.demo-think');
 let stage = 1;
 const lockLayout = () => {
   if (!demo || !panes || !bar) return;
   demo.style.removeProperty('--demo-panes-h');
   demo.style.removeProperty('--demo-bar-h');
+  demo.style.removeProperty('--demo-think-h');
   let paneH = 0;
   let barH = 0;
+  let thinkH = 0;
   for (let s = 1; s <= steps.length; s++) {
     applyStage(s);
     paneH = Math.max(paneH, panes.scrollHeight);
     barH = Math.max(barH, bar.offsetHeight);
+    thinkH = Math.max(thinkH, think?.offsetHeight ?? 0);
   }
   applyStage(stage);
   demo.style.setProperty('--demo-panes-h', `${Math.ceil(paneH)}px`);
   demo.style.setProperty('--demo-bar-h', `${Math.ceil(barH)}px`);
+  if (think) demo.style.setProperty('--demo-think-h', `${Math.ceil(thinkH)}px`);
 };
 
 /**

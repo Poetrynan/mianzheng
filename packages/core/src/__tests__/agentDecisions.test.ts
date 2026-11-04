@@ -39,6 +39,19 @@ function decisions(run: AgentRun) {
 }
 
 describe('面评 Agent：下一步由模型在合法动作里挑', () => {
+  it('准备样例保存真实的程序判断理由，不把固定检查包装成模型决定', async () => {
+    const { app, team, interviewId } = await evaluationApp(new MockLlmProvider());
+    const before = app.store.listDraftsByInterview(interviewId);
+    const bundle = await app.agent.startPrep(humanActor(team.interviewer), interviewId);
+    const tools = bundle.run.steps.filter((s) => s.tool);
+    expect(tools.length).toBeGreaterThan(0);
+    expect(tools.every((s) => typeof (s.data?.decision as { reason?: string })?.reason === 'string')).toBe(true);
+    expect(tools.every((s) => (s.data?.decision as { by?: string })?.by === 'rule')).toBe(true);
+    expect(app.store.findAgentRun(bundle.run.id)?.steps).toEqual(bundle.run.steps);
+    expect(app.store.listDraftsByInterview(interviewId)).toEqual(before);
+    app.store.close();
+  });
+
   it('模型选择「先多找一组原话」时，路径跟着变，但引用核对和预算照样生效', async () => {
     const picked: NextStepRequest[] = [];
     const llm = providerWith({
@@ -51,7 +64,7 @@ describe('面评 Agent：下一步由模型在合法动作里挑', () => {
     const { app, team, interviewId } = await evaluationApp(llm);
     const bundle = await app.agent.startEvaluation(humanActor(team.interviewer), interviewId);
 
-    const made = decisions(bundle.run);
+    const made = decisions(bundle.run).filter((m) => m.decision!.considered.length > 1);
     expect(picked.length).toBeGreaterThan(0);
     expect(made.length).toBe(picked.length);
     expect(made.every((m) => m.decision!.by === 'model')).toBe(true);
@@ -77,7 +90,7 @@ describe('面评 Agent：下一步由模型在合法动作里挑', () => {
     const { app, team, interviewId } = await evaluationApp(llm);
     const bundle = await app.agent.startEvaluation(humanActor(team.interviewer), interviewId);
 
-    const made = decisions(bundle.run);
+    const made = decisions(bundle.run).filter((m) => m.decision!.considered.length > 1);
     expect(made.length).toBeGreaterThan(0);
     expect(made.every((m) => m.decision!.by === 'rule')).toBe(true);
     expect(made[0]!.decision!.reason).toContain('按默认顺序');
