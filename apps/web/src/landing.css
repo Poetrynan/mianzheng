@@ -164,7 +164,31 @@ section.wrap { padding-block: 88px; }
 .demo-steps button:hover { color: var(--brand); }
 .demo-steps button[aria-pressed='true'] { border-color: var(--line); background: var(--ink-900); color: var(--brand); }
 .demo-steps b { font-weight: 500; }
-.demo-steps .bar, .demo-steps button > span:last-child { display: none; }
+.demo-steps button > span:last-child { display: none; }
+/* 进度条：当前步按 --dur 走满后自动切到下一步；已走过的步保持满格。 */
+.demo-steps .bar { display: block; height: 3px; margin: 0 6px 8px; overflow: hidden; border-radius: 2px; background: var(--line-soft); }
+.demo-steps .bar i { display: block; height: 100%; background: var(--brand); transform: scaleX(0); transform-origin: left center; }
+.demo-steps button[data-done] .bar i { transform: scaleX(1); opacity: 0.45; }
+.demo-steps button[aria-pressed='true'] .bar i { animation: demo-fill var(--dur, 4000ms) linear forwards; }
+.demo[data-paused] .demo-steps button[aria-pressed='true'] .bar i { animation-play-state: paused; }
+@keyframes demo-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* 版面锁定：高度由脚本按四步里最高的那一步算出，切换步骤时下面的内容不会跳。 */
+.demo-panes { height: var(--demo-panes-h, auto); overflow: hidden; }
+.demo-bar { min-height: var(--demo-bar-h, auto); }
+.demo-status { display: grid; justify-items: end; }
+.demo-status > .chip { grid-area: 1 / 1; }
+.demo-status > .chip[hidden] { display: inline-flex; visibility: hidden; }
+
+/* 每一步新出现的内容按 --i 依次浮现。 */
+.demo [data-in]:not([hidden]) { animation: demo-rise 420ms cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--i, 0) * 140ms); }
+.demo .tx li { transition: background-color 360ms ease, padding 360ms ease, color 360ms ease; }
+.demo .score b { transition: background-color 300ms ease, color 300ms ease; }
+.demo .d-wait i { animation: demo-dot 1.2s ease-in-out infinite; }
+.demo .d-wait i:nth-of-type(2) { animation-delay: 160ms; }
+.demo .d-wait i:nth-of-type(3) { animation-delay: 320ms; }
+@keyframes demo-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes demo-dot { 0%, 100% { opacity: .35; } 50% { opacity: 1; background: var(--brand); } }
 .facts { grid-column: 1/-1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 56px; padding: 30px 0 0; border-top: 1px solid var(--line-soft); }
 .fact b { font-size: 17px; font-weight: 600; }
 .fact p { margin-top: 5px; color: var(--mist-dim); font-size: 13px; line-height: 1.8; }
@@ -424,4 +448,5 @@ footer { border-top: 1px solid var(--line-soft); padding: 48px 0 24px; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
+  .demo-steps button[aria-pressed='true'] .bar i { transform: scaleX(1); }
 }

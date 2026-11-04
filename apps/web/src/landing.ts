@@ -49,10 +49,79 @@ const applyStage = (stage: number) => {
   }
   demo.querySelectorAll('[data-mark]').forEach((el) => el.classList.toggle('mark', stage >= 2));
   demo.querySelectorAll('[data-pick]').forEach((el) => el.classList.toggle('on', stage >= 4));
-  steps.forEach((button, i) => button.setAttribute('aria-pressed', String(i + 1 === stage)));
+  steps.forEach((button, i) => {
+    button.setAttribute('aria-pressed', String(i + 1 === stage));
+    button.toggleAttribute('data-done', i + 1 < stage);
+  });
 };
-steps.forEach((button, i) => button.addEventListener('click', () => applyStage(i + 1)));
-applyStage(4);
+
+/**
+ * 版面锁定：把四步依次套一遍，取最高的那一步作为固定高度。
+ * 只读布局、不经过绘制，所以用户看不到这次试排；字体加载完和窗口变化时重算。
+ */
+const panes = demo?.querySelector<HTMLElement>('.demo-panes');
+const bar = demo?.querySelector<HTMLElement>('.demo-bar');
+let stage = 1;
+const lockLayout = () => {
+  if (!demo || !panes || !bar) return;
+  demo.style.removeProperty('--demo-panes-h');
+  demo.style.removeProperty('--demo-bar-h');
+  let paneH = 0;
+  let barH = 0;
+  for (let s = 1; s <= steps.length; s++) {
+    applyStage(s);
+    paneH = Math.max(paneH, panes.scrollHeight);
+    barH = Math.max(barH, bar.offsetHeight);
+  }
+  applyStage(stage);
+  demo.style.setProperty('--demo-panes-h', `${Math.ceil(paneH)}px`);
+  demo.style.setProperty('--demo-bar-h', `${Math.ceil(barH)}px`);
+};
+
+/**
+ * 自动播放：当前步的进度条走满（animationend）就进入下一步，最后一步走满后从头再来。
+ * 进度条和画面由同一个动画驱动，暂停时两者一起停：鼠标停在演示上、键盘焦点在里面、
+ * 演示滚出视口或页面切到后台时都会暂停。系统要求减少动效时不自动播放，停在最后一步。
+ */
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const holds = new Set<string>();
+const setHold = (reason: string, on: boolean) => {
+  if (on) holds.add(reason); else holds.delete(reason);
+  demo?.toggleAttribute('data-paused', holds.size > 0);
+};
+const goTo = (next: number) => {
+  stage = next;
+  const active = steps[next - 1];
+  // 重复点同一步时，先取消选中再选中，让进度条从头开始。
+  active?.setAttribute('aria-pressed', 'false');
+  void active?.offsetWidth;
+  applyStage(next);
+};
+
+if (demo) {
+  steps.forEach((button, i) => {
+    button.addEventListener('click', () => goTo(i + 1));
+    button.querySelector('.bar i')?.addEventListener('animationend', () => {
+      if (stage === i + 1 && !reduceMotion.matches) goTo(stage % steps.length + 1);
+    });
+  });
+
+  demo.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') setHold('hover', true); });
+  demo.addEventListener('pointerleave', () => setHold('hover', false));
+  demo.addEventListener('focusin', () => setHold('focus', true));
+  demo.addEventListener('focusout', (e) => { if (!demo.contains(e.relatedTarget as Node)) setHold('focus', false); });
+  document.addEventListener('visibilitychange', () => setHold('hidden', document.hidden));
+  new IntersectionObserver(([entry]) => setHold('offscreen', !entry?.isIntersecting), { threshold: 0.25 }).observe(demo);
+
+  stage = reduceMotion.matches ? steps.length : 1;
+  lockLayout();
+  void document.fonts?.ready.then(lockLayout);
+  let resizeTimer = 0;
+  addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(lockLayout, 150);
+  });
+}
 
 const featureTabs = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-product-tab]'));
 const featurePanels = Array.from(document.querySelectorAll<HTMLElement>('[data-product-panel]'));
